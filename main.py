@@ -18,7 +18,7 @@ def tower_master():
 
     # Main Game Loop
     while True:
-        clock.tick(60)
+        clock.tick(settings.fps)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
