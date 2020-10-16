@@ -52,7 +52,7 @@ class Character(Object):
 
     def image_at(self, rectangle):
         rect = pygame.Rect(rectangle)
-        image = pygame.Surface(rect.size).convert()
+        image = pygame.Surface(rect.size)
         image.blit(self.sprite_sheet, (0, 0), rect)
         return image
 

@@ -36,7 +36,7 @@ def tower_master():
 
         character.update()
 
-        screen.fill((65, 65, 65))
+        screen.fill(settings.screen_color)
         character.blitme()
 
         pygame.display.flip()
