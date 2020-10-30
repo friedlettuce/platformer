@@ -25,31 +25,18 @@ def tower_master():
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT or event.key == ord('a'):
                     character.move_left()
-                if event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_RIGHT or event.key == ord('d'):
                     character.move_right()
+                if event.key == pygame.K_SPACE:
+                    print('jump')
             elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT or event.key == ord('a'):
                     character.move_left(False)
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT or event.key == ord('d'):
                     character.move_right(False)
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT or event.key == ord('a'):
-                print('left')
-            if event.key == pygame.K_RIGHT or event.key == ord('d'):
-                print('right')
-            if event.key == pygame.K_UP or event.key == ord('w'):
-                print('jump')
 
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT or event.key == ord('a'):
-                print('left stop')
-            if event.key == pygame.K_RIGHT or event.key == ord('d'):
-                print('right stop')
-            if event.key == ord('q'):
-                pygame.quit()
-                sys.exit()
         character.update()
 
         screen.fill(settings.screen_color)
