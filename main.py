@@ -5,7 +5,8 @@ from objects import Player
 
 
 def tower_master():
-
+    white = [255, 255, 255]
+    red = [255, 0, 0]
     pygame.init()
     bg = pygame.image.load("images/background.jpg")
 
@@ -16,11 +17,13 @@ def tower_master():
     pygame.display.set_caption(settings.title)
 
     character = Player(screen, settings)
-
+    clock.tick(settings.fps)
+    #Uncomment this to display image
+    #screen.blit(bg, (0, 0))
+    #pygame.display.update()
     # Main Game Loop
     while True:
-        clock.tick(settings.fps)
-        screen.blit(bg, (0, 0))
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -39,10 +42,15 @@ def tower_master():
 
         character.update()
 
-        screen.fill(settings.screen_color)
+       # Uncomment this to make background white screen
+        #screen.fill(white)
         character.blitme()
 
         pygame.display.flip()
+
+
+
+
 
 
 tower_master()
