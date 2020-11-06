@@ -36,19 +36,43 @@ class Character(Object):
         self.moving_right = False
         self.moving_left = False
 
+        self.idle_frames = []
+        x_pos = self.info['idle_x_starts']
+        y_pos = self.info['idle_y_starts']
+        for frame in range(self.info['idle_frames']):
+            self.idle_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+                                                   self.info['size'][0], self.info['size'][1])))
+
+        self.walk_frames = []
+        x_pos = self.info['walk_x_starts']
+        y_pos = self.info['walk_y_starts']
+        for frame in range(self.info['walk_frames']):
+            self.walk_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+                                                   self.info['size'][0], self.info['size'][1])))
+
     def move_left(self, flag=True):
-        if flag:
-            self.state = State.WALK
+        if flag and self.state is not State.WALK:
+            self.walk_state()
         elif not self.moving_right and self.state is not State.IDLE:
-            self.state = State.IDLE
+            self.idle_state()
         self.moving_left = flag
 
     def move_right(self, flag=True):
-        if flag:
-            self.state = State.WALK
+        if flag and self.state is not State.WALK:
+            self.walk_state()
         elif not self.moving_left and self.state is not State.IDLE:
-            self.state = State.IDLE
+            self.idle_state()
         self.moving_right = flag
+
+    def idle_state(self):
+        self.state = State.IDLE
+        self.curr_frame = 0
+        self.frame_count = self.info['idle_frames']
+
+    def walk_state(self):
+        self.state = State.WALK
+        self.curr_frame = 0
+        self.frame_count = self.info['walk_frames']
 
     def image_at(self, rectangle):
         rect = pygame.Rect(rectangle)
@@ -66,21 +90,13 @@ class Player(Character):
 
         self.walking_speed = settings.player_w_speed
 
-        self.idle_frames = []
-        self.state = State.IDLE
-        x_pos = self.info['idle_x_starts']
-        y_pos = self.info['idle_y_starts']
-
-        for frame in range(self.info['idle_frames']):
-            self.idle_frames.append(self.image_at((x_pos[frame], y_pos[frame],
-                                                   self.info['size'][0], self.info['size'][1])))
-
         self.rect = self.idle_frames[0].get_rect()
         self.rect.centerx = self.info['start_pos'][0]
         self.rect.bottom = self.info['start_pos'][1]
 
         self.frame_count = self.info['idle_frames']
         self.curr_image = self.idle_frames[self.curr_frame]
+        self.state = State.IDLE
 
     def update(self):
 
@@ -91,4 +107,7 @@ class Player(Character):
 
         self.inc_frame()
         # Update per state
-        self.curr_image = self.idle_frames[self.curr_frame]
+        if self.state is State.IDLE:
+            self.curr_image = self.idle_frames[self.curr_frame]
+        if self.state is State.WALK:
+            self.curr_image = self.walk_frames[self.curr_frame]
