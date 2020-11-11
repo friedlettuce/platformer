@@ -5,16 +5,18 @@ from objects import Player
 
 
 def tower_master():
-    white = [255, 255, 255]
-    red = [255, 0, 0]
+
     pygame.init()
-    bg = pygame.image.load("images/background.jpg")
 
     settings = Settings()
     clock = pygame.time.Clock()
 
     screen = pygame.display.set_mode((settings.screen_width, settings.screen_height))
     pygame.display.set_caption(settings.title)
+    bg = pygame.image.load(settings.background_img)
+
+    white = [255, 255, 255]
+    # red = [255, 0, 0]
 
     character = Player(screen, settings)
 

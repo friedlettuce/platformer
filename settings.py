@@ -7,6 +7,7 @@ class Settings:
         self.screen_color = (65, 65, 65)
         self.title = "Tower Master"
         self.fps = 15
+        self.background_img = "images/background_full.png"
 
         self.player_w_speed = 7  # Must be a digit
         self.player_sprite = {
