@@ -13,7 +13,7 @@ class Object:
         self.frame_count = 0
 
         self.info = info
-        self.sprite_sheet = pygame.image.load(self.info['location']).convert()
+        self.sprite_sheet = pygame.image.load(self.info['location'])
 
     def inc_frame(self):
         self.curr_frame = (self.curr_frame + 1) % self.frame_count
