@@ -24,3 +24,20 @@ class Settings:
             'attack_y_starts': (3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3),
             'attack_x_starts': (12, 61, 113, 162, 211, 260, 309, 358, 407, 452, 501, 550, 599)
         }
+
+        self.skeleton_sprite = {
+            'location': "images/basic_enemies.png",
+            'size': (22, 43),
+            'start_pos': (self.screen_width / 3, self.screen_height - 50),
+            'idle_frames': 2,
+            'idle_y_starts': (3, 3),
+            'idle_x_starts': (12, 55)
+        }
+
+        self.haunted_axe = {
+            'location': "images/basic_enemies.png",
+            'size': (10, 10),
+            'frames': 2,
+            'y_starts': (),
+            'x_starts': ()
+        }

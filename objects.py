@@ -4,7 +4,7 @@ from enum import Enum
 
 class Object:
 
-    def __init__(self, screen):
+    def __init__(self, screen, info):
 
         self.screen = screen
         self.curr_image = None
@@ -12,8 +12,17 @@ class Object:
         self.curr_frame = 0
         self.frame_count = 0
 
+        self.info = info
+        self.sprite_sheet = pygame.image.load(self.info['location']).convert()
+
     def inc_frame(self):
         self.curr_frame = (self.curr_frame + 1) % self.frame_count
+
+    def image_at(self, rectangle):
+        rect = pygame.Rect(rectangle)
+        image = pygame.Surface(rect.size)
+        image.blit(self.sprite_sheet, (0, 0), rect)
+        return image
 
     def blitme(self):
         self.screen.blit(self.curr_image, self.rect)
@@ -27,12 +36,9 @@ class State(Enum):
 class Character(Object):
 
     def __init__(self, screen, sprite_info):
-        super().__init__(screen)
+        super().__init__(screen, sprite_info)
 
-        self.info = sprite_info
-        self.sprite_sheet = pygame.image.load(self.info['location']).convert()
         self.state = None
-
         self.moving_right = False
         self.moving_left = False
 
@@ -41,13 +47,6 @@ class Character(Object):
         y_pos = self.info['idle_y_starts']
         for frame in range(self.info['idle_frames']):
             self.idle_frames.append(self.image_at((x_pos[frame], y_pos[frame],
-                                                   self.info['size'][0], self.info['size'][1])))
-
-        self.walk_frames = []
-        x_pos = self.info['walk_x_starts']
-        y_pos = self.info['walk_y_starts']
-        for frame in range(self.info['walk_frames']):
-            self.walk_frames.append(self.image_at((x_pos[frame], y_pos[frame],
                                                    self.info['size'][0], self.info['size'][1])))
 
     def move_left(self, flag=True):
@@ -74,12 +73,6 @@ class Character(Object):
         self.curr_frame = 0
         self.frame_count = self.info['walk_frames']
 
-    def image_at(self, rectangle):
-        rect = pygame.Rect(rectangle)
-        image = pygame.Surface(rect.size)
-        image.blit(self.sprite_sheet, (0, 0), rect)
-        return image
-
 
 class Player(Character):
 
@@ -93,6 +86,13 @@ class Player(Character):
         self.rect = self.idle_frames[0].get_rect()
         self.rect.centerx = self.info['start_pos'][0]
         self.rect.bottom = self.info['start_pos'][1]
+
+        self.walk_frames = []
+        x_pos = self.info['walk_x_starts']
+        y_pos = self.info['walk_y_starts']
+        for frame in range(self.info['walk_frames']):
+            self.walk_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+                                                   self.info['size'][0], self.info['size'][1])))
 
         self.frame_count = self.info['idle_frames']
         self.curr_image = self.idle_frames[self.curr_frame]
@@ -111,3 +111,41 @@ class Player(Character):
             self.curr_image = self.idle_frames[self.curr_frame]
         if self.state is State.WALK:
             self.curr_image = self.walk_frames[self.curr_frame]
+
+
+class Skeleton(Character):
+
+    def __init__(self, screen, settings):
+        super().__init__(screen, settings.skeleton_sprite)
+
+        # Need to update frame count and current frame when switching states
+        self.rect = self.idle_frames[0].get_rect()
+        self.rect.centerx = self.info['start_pos'][0]
+        self.rect.bottom = self.info['start_pos'][1]
+
+        self.frame_count = self.info['idle_frames']
+        self.curr_image = self.idle_frames[self.curr_frame]
+        self.state = State.IDLE
+
+    def update(self):
+        self.inc_frame()
+        # Update per state
+        self.curr_image = self.idle_frames[self.curr_frame]
+
+
+class Weapon(Object):
+
+    def __init__(self, screen, weapon_info):
+        super().__init__(screen, weapon_info)
+
+        self.frames = []
+        x_pos = self.info['x_starts']
+        y_pos = self.info['y_starts']
+        for frame in range(self.info['frames']):
+            self.frames.append(self.image_at((x_pos[frame], y_pos[frame],
+                                              self.info['size'][0], self.info['size'][1])))
+
+
+class HauntedAxe(Weapon):
+    def __init__(self, screen, settings):
+        super().__init__(screen, settings.haunted_axe)

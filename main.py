@@ -1,7 +1,7 @@
 import pygame, sys
 from settings import Settings
 
-from objects import Player
+from objects import Player, Skeleton
 
 
 def tower_master():
@@ -19,6 +19,7 @@ def tower_master():
     # red = [255, 0, 0]
 
     character = Player(screen, settings)
+    skeleton = Skeleton(screen, settings)
 
     # Main Game Loop
     while True:
@@ -41,9 +42,11 @@ def tower_master():
                     character.move_right(False)
 
         character.update()
+        skeleton.update()
 
         screen.fill(white)
         screen.blit(bg, (0, 0))
+        skeleton.blitme()
         character.blitme()
 
         pygame.display.flip()
