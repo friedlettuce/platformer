@@ -142,10 +142,17 @@ class Skeleton(Character):
         self.curr_image = self.idle_frames[self.curr_frame]
         self.state = State.IDLE
 
+        self.weapon = HauntedAxe(screen, settings)
+
     def update(self):
+        self.weapon.update(self.rect)
         self.inc_frame()
         # Update per state
         self.curr_image = self.idle_frames[self.curr_frame]
+
+    def blitme(self):
+        super().blitme()
+        self.weapon.blitme()
 
 
 class Weapon(Object):
@@ -153,12 +160,26 @@ class Weapon(Object):
     def __init__(self, screen, weapon_info):
         super().__init__(screen, weapon_info)
 
+        self.active = False
+
         self.frames = []
+        self.frame_count = weapon_info['frames']
         x_pos = self.info['x_starts']
         y_pos = self.info['y_starts']
         for frame in range(self.info['frames']):
             self.frames.append(self.image_at((x_pos[frame], y_pos[frame],
                                               self.info['size'][0], self.info['size'][1])))
+        self.curr_image = self.frames[self.curr_frame]
+
+    def activate(self, flag=False):
+        self.active = flag
+        self.curr_frame = 0
+
+    def update(self, rect):
+        self.rect = rect
+        if self.active:
+            self.inc_frame()
+            self.curr_image = self.frames[self.curr_frame]
 
 
 class HauntedAxe(Weapon):

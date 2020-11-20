@@ -37,7 +37,7 @@ class Settings:
         self.haunted_axe = {
             'location': "images/basic_enemies.png",
             'size': (10, 10),
-            'frames': 2,
-            'y_starts': (),
-            'x_starts': ()
+            'frames': 4,
+            'y_starts': (63, 64, 65, 64),
+            'x_starts': (15, 64, 113, 162)
         }
