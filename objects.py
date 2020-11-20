@@ -84,6 +84,8 @@ class Character(Object):
         self.curr_frames = self.walk_frames
 
     def attack_state(self):
+        if self.state == State.ATTACK:
+            return
         self.state = State.ATTACK
         self.curr_frame = 0
         self.frame_count = self.info['attack_frames']
