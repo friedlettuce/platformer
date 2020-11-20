@@ -31,6 +31,7 @@ class Object:
 class State(Enum):
     IDLE = 0
     WALK = 1
+    ATTACK = 2
 
 
 class Character(Object):
@@ -43,11 +44,16 @@ class Character(Object):
         self.moving_left = False
 
         self.idle_frames = []
+        self.walk_frames = []
+        self.attack_frames = []
+
         x_pos = self.info['idle_x_starts']
         y_pos = self.info['idle_y_starts']
         for frame in range(self.info['idle_frames']):
             self.idle_frames.append(self.image_at((x_pos[frame], y_pos[frame],
                                                    self.info['size'][0], self.info['size'][1])))
+        # Points to which array of frames to use
+        self.curr_frames = None
 
     def move_left(self, flag=True):
         if flag and self.state is not State.WALK:
@@ -67,11 +73,21 @@ class Character(Object):
         self.state = State.IDLE
         self.curr_frame = 0
         self.frame_count = self.info['idle_frames']
+        self.curr_frames = self.idle_frames
 
     def walk_state(self):
+        if self.state is State.ATTACK:
+            return
         self.state = State.WALK
         self.curr_frame = 0
         self.frame_count = self.info['walk_frames']
+        self.curr_frames = self.walk_frames
+
+    def attack_state(self):
+        self.state = State.ATTACK
+        self.curr_frame = 0
+        self.frame_count = self.info['attack_frames']
+        self.curr_frames = self.attack_frames
 
 
 class Player(Character):
@@ -79,24 +95,23 @@ class Player(Character):
     def __init__(self, screen, settings):
         super().__init__(screen, settings.player_sprite)
 
-        # Need to update frame count and current frame when switching states
-
         self.walking_speed = settings.player_w_speed
 
         self.rect = self.idle_frames[0].get_rect()
         self.rect.centerx = self.info['start_pos'][0]
         self.rect.bottom = self.info['start_pos'][1]
 
-        self.walk_frames = []
         x_pos = self.info['walk_x_starts']
         y_pos = self.info['walk_y_starts']
         for frame in range(self.info['walk_frames']):
             self.walk_frames.append(self.image_at((x_pos[frame], y_pos[frame],
                                                    self.info['size'][0], self.info['size'][1])))
-
-        self.frame_count = self.info['idle_frames']
-        self.curr_image = self.idle_frames[self.curr_frame]
-        self.state = State.IDLE
+        x_pos = self.info['attack_x_starts']
+        y_pos = self.info['attack_y_starts']
+        for frame in range(self.info['attack_frames']):
+            self.attack_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+                                                     self.info['size'][0], self.info['size'][1])))
+        self.idle_state()
 
     def update(self):
 
@@ -105,12 +120,12 @@ class Player(Character):
         elif self.moving_left:
             self.rect.centerx -= self.walking_speed
 
-        self.inc_frame()
-        # Update per state
-        if self.state is State.IDLE:
-            self.curr_image = self.idle_frames[self.curr_frame]
-        if self.state is State.WALK:
-            self.curr_image = self.walk_frames[self.curr_frame]
+        if self.state is State.ATTACK and self.curr_frame+1 is self.info['attack_frames']:
+            self.idle_state()
+        else:
+            self.inc_frame()
+
+        self.curr_image = self.curr_frames[self.curr_frame]
 
 
 class Skeleton(Character):

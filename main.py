@@ -35,6 +35,8 @@ def tower_master():
                     character.move_right()
                 if event.key == pygame.K_SPACE:
                     print('jump')
+                if event.key == pygame.K_f or event.key == ord('f'):
+                    character.attack_state()
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == ord('a'):
                     character.move_left(False)
