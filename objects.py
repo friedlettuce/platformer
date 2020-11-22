@@ -20,7 +20,7 @@ class Object:
 
     def image_at(self, rectangle):
         rect = pygame.Rect(rectangle)
-        image = pygame.Surface(rect.size)
+        image = pygame.Surface(rect.size, pygame.SRCALPHA)
         image.blit(self.sprite_sheet, (0, 0), rect)
         return image
 
