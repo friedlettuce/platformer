@@ -1,6 +1,7 @@
-import pygame, sys
+import pygame
+from pygame.sprite import Group
 from settings import Settings
-
+import game_functions as gf
 from objects import Player, Skeleton
 
 
@@ -21,37 +22,21 @@ def tower_master():
     character = Player(screen, settings)
     skeleton = Skeleton(screen, settings)
 
+    # group to store throwing knives
+    knives = Group()
+
     # Main Game Loop
     while True:
         clock.tick(settings.fps)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT or event.key == ord('a'):
-                    character.move_left()
-                if event.key == pygame.K_RIGHT or event.key == ord('d'):
-                    character.move_right()
-                if event.key == pygame.K_SPACE:
-                    print('jump')
-                if event.key == pygame.K_f or event.key == ord('f'):
-                    character.attack_state()
-            elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT or event.key == ord('a'):
-                    character.move_left(False)
-                elif event.key == pygame.K_RIGHT or event.key == ord('d'):
-                    character.move_right(False)
+        gf.check_events(settings, screen, character, knives)
 
         character.update()
         skeleton.update()
 
-        screen.fill(white)
-        screen.blit(bg, (0, 0))
-        skeleton.blitme()
-        character.blitme()
+        gf.update_knives(knives)
 
-        pygame.display.flip()
+        gf.update_screen(settings, screen, character, bg, skeleton, knives)
 
 
 tower_master()

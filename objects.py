@@ -1,4 +1,5 @@
 import pygame
+from pygame.sprite import Sprite
 from enum import Enum
 
 
@@ -187,3 +188,31 @@ class Weapon(Object):
 class HauntedAxe(Weapon):
     def __init__(self, screen, settings):
         super().__init__(screen, settings.haunted_axe)
+
+class Knife(Sprite):
+    # class to manage player's throwing knives
+    def __init__(self, settings, screen, character):
+        # create a knife at player's position
+        super(Knife, self).__init__()
+        self.screen = screen
+
+        # create knife at 0,0 and then move to correct position
+        self.rect = pygame.Rect(0, 0, settings.knife_width, settings.knife_height)
+        self.rect.centerx = character.rect.centerx
+        self.rect.top = character.rect.top + 20
+
+        # store position as decimal value
+        self.x = float(self.rect.x)
+
+        self.color = settings.knife_color
+        self.speed = settings.knife_speed
+    def update(self):
+        # Move knife horizontally
+        # update decimal position
+        self.x += self.speed
+        # update rect
+        self.rect.x = self.x
+
+    def draw_knife(self):
+        # draw knife on screen
+        pygame.draw.rect(self.screen, self.color, self.rect)
