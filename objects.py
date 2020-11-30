@@ -1,11 +1,34 @@
 import pygame
 from enum import Enum
+import os
+#Guide used to implement jump and platform mechanics
+#https://opensource.com/article/19/12/jumping-python-platformer-game
+#https://opensource.com/article/18/7/put-platforms-python-game
+
+worldx = 960
+worldy = 720
+fps = 40
+ani = 4
+BLUE = (25, 25, 200)
+BLACK = (23, 23, 23)
+WHITE = (254, 254, 254)
+ALPHA = (0, 255, 0)
+
+
+class Platform(pygame.sprite.Sprite):
+    def __init__(self, xloc, yloc, imgw, imgh, img):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join('images', 'MainCharacter' + '.png'))
+        self.image.set_colorkey(ALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.y = yloc
+        self.rect.x = xloc
+
 
 
 class Object:
 
     def __init__(self, screen, info):
-
         self.screen = screen
         self.curr_image = None
         self.rect = None
@@ -95,10 +118,13 @@ class Character(Object):
 class Player(Character):
 
     def __init__(self, screen, settings):
+        self.movex = 0
+        self.movey = 0
         super().__init__(screen, settings.player_sprite)
 
         self.walking_speed = settings.player_w_speed
-
+        self.is_jumping = True
+        self.is_falling = False
         self.rect = self.idle_frames[0].get_rect()
         self.rect.centerx = self.info['start_pos'][0]
         self.rect.bottom = self.info['start_pos'][1]
@@ -115,6 +141,21 @@ class Player(Character):
                                                      self.info['size'][0], self.info['size'][1])))
         self.idle_state()
 
+    def gravity(self):
+        if self.is_jumping:
+            self.movey += 7.2   #Edit this value to change jump height
+
+    def control(self, x, y):
+        """
+        control player movement
+        """
+        self.movex += x
+
+    def jump(self):
+        if self.is_jumping is False:
+            self.is_falling = False
+            self.is_jumping = True
+
     def update(self):
 
         if self.moving_right:
@@ -122,13 +163,139 @@ class Player(Character):
         elif self.moving_left:
             self.rect.centerx -= self.walking_speed
 
-        if self.state is State.ATTACK and self.curr_frame+1 is self.info['attack_frames']:
+        if self.state is State.ATTACK and self.curr_frame + 1 is self.info['attack_frames']:
             self.idle_state()
         else:
             self.inc_frame()
 
         self.curr_image = self.curr_frames[self.curr_frame]
 
+        if self.movex < 0:
+            self.is_jumping = True
+            self.frame += 1
+            if self.frame > 3 * ani:
+                self.frame = 0
+            self.image = pygame.transform.flip(self.images[self.frame // ani], True, False)
+
+            # moving right
+        if self.movex > 0:
+            self.is_jumping = True
+            self.frame += 1
+            if self.frame > 3 * ani:
+                self.frame = 0
+            self.image = self.images[self.frame // ani]
+
+            # collisions
+        enemy_hit_list = pygame.sprite.spritecollide(self, enemy_list, False)
+        #for enemy in enemy_hit_list:
+            #self.health -= 1
+            # print(self.health)
+
+        ground_hit_list = pygame.sprite.spritecollide(self, ground_list, False)
+        for g in ground_hit_list:
+            self.movey = 0
+            self.rect.bottom = g.rect.top
+            self.is_jumping = False  # stop jumping
+
+        # fall off the world
+        if self.rect.y > worldy:
+            self.health -= 1
+            print(self.health)
+            self.rect.x = tx
+            self.rect.y = ty
+
+        plat_hit_list = pygame.sprite.spritecollide(self, plat_list, False)
+        for p in plat_hit_list:
+            self.is_jumping = False  # stop jumping
+            self.movey = 0
+            if self.rect.bottom <= p.rect.bottom:
+                self.rect.bottom = p.rect.top
+            else:
+                self.movey += 3.2
+
+        if self.is_jumping and self.is_falling is False:
+            self.is_falling = True
+            self.movey -= 33  # how high to jump
+
+        self.rect.x += self.movex
+        self.rect.y += self.movey
+
+class Enemy(pygame.sprite.Sprite):
+    """
+    Spawn an enemy
+    """
+
+    def __init__(self, x, y, img):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join('images', 'basic_enemies' + '.png'))
+        self.image.set_colorkey(ALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.counter = 0
+
+    def move(self):
+        """
+        enemy movement
+        """
+        distance = 80
+        speed = 8
+
+        if self.counter >= 0 and self.counter <= distance:
+            self.rect.x += speed
+        elif self.counter >= distance and self.counter <= distance * 2:
+            self.rect.x -= speed
+        else:
+            self.counter = 0
+
+        self.counter += 1
+class Level:
+    def ground(lvl, gloc, tx, ty):
+        ground_list = pygame.sprite.Group()
+        i = 0
+        if lvl == 1:
+            while i < len(gloc):
+                ground = Platform(gloc[i], worldy - ty, tx, ty, 'tile-ground.png')
+                ground_list.add(ground)
+                i = i + 1
+
+        if lvl == 2:
+            print("Level " + str(lvl))
+
+        return ground_list
+
+    def bad(lvl, eloc):
+        if lvl == 1:
+            enemy = Enemy(eloc[0], eloc[1], 'enemy.png')
+            enemy_list = pygame.sprite.Group()
+            enemy_list.add(enemy)
+        if lvl == 2:
+            print("Level " + str(lvl))
+
+        return enemy_list
+
+    # x location, y location, img width, img height, img file
+    def platform(lvl, tx, ty):
+        plat_list = pygame.sprite.Group()
+        ploc = []
+        i = 0
+        if lvl == 1:
+            ploc.append((200, worldy - ty - 128, 3))
+            ploc.append((300, worldy - ty - 256, 3))
+            ploc.append((550, worldy - ty - 128, 4))
+            while i < len(ploc):
+                j = 0
+                while j <= ploc[i][2]:
+                    plat = Platform((ploc[i][0] + (j * tx)), ploc[i][1], tx, ty, 'tile.png')
+                    plat_list.add(plat)
+                    j = j + 1
+                print('run' + str(i) + str(ploc[i]))
+                i = i + 1
+
+        if lvl == 2:
+            print("Level " + str(lvl))
+
+        return plat_list
 
 class Skeleton(Character):
 
@@ -182,6 +349,22 @@ class Weapon(Object):
         if self.active:
             self.inc_frame()
             self.curr_image = self.frames[self.curr_frame]
+
+eloc = []
+eloc = [300, 0]
+enemy_list = Level.bad(1, eloc)
+
+gloc = []
+tx = 64
+ty = 64
+i = 0
+while i <= (worldx / tx) + tx:
+    gloc.append(i * tx)
+    i = i + 1
+
+ground_list = Level.ground(1, gloc, tx, ty)
+plat_list = Level.platform(1, tx, ty)
+
 
 
 class HauntedAxe(Weapon):
