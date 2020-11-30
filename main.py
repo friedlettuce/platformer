@@ -34,7 +34,7 @@ def tower_master():
                 if event.key == pygame.K_RIGHT or event.key == ord('d'):
                     character.move_right()
                 if event.key == pygame.K_SPACE:
-                    character.jump()
+                    print('jump')
                 if event.key == pygame.K_f or event.key == ord('f'):
                     character.attack_state()
             elif event.type == pygame.KEYUP:
@@ -45,9 +45,8 @@ def tower_master():
 
         character.update()
         skeleton.update()
-        character.gravity()
-        screen.fill(white)
 
+        screen.fill(white)
         screen.blit(bg, (0, 0))
         skeleton.blitme()
         character.blitme()
