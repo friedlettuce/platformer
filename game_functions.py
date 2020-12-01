@@ -20,7 +20,7 @@ def check_keydown_events(event, character, knives, settings, screen):
     if event.key == pygame.K_RIGHT or event.key == ord('d'):
         character.move_right()
     if event.key == pygame.K_SPACE:
-        print('jump')
+        character.jump()
     if event.key == pygame.K_f or event.key == ord('f'):
         character.attack_state()
     if event.key == pygame.K_g:

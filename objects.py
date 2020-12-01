@@ -1,6 +1,7 @@
 import pygame
 from pygame.sprite import Sprite
 from enum import Enum
+import settings
 import os
 #Guide used to implement jump and platform mechanics
 #https://opensource.com/article/19/12/jumping-python-platformer-game
@@ -19,7 +20,7 @@ ALPHA = (0, 255, 0)
 class Platform(pygame.sprite.Sprite):
     def __init__(self, xloc, yloc, imgw, imgh, img):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join('images', 'MainCharacter' + '.png'))
+        self.image = pygame.image.load(os.path.join('images', 'brick_platform' + '.png'))
         self.image.set_colorkey(ALPHA)
         self.rect = self.image.get_rect()
         self.rect.y = yloc
@@ -56,6 +57,7 @@ class State(Enum):
     IDLE = 0
     WALK = 1
     ATTACK = 2
+    JUMP = 3
 
 
 class Character(Object):
@@ -64,12 +66,18 @@ class Character(Object):
         super().__init__(screen, sprite_info)
 
         self.state = None
+        self.flipped = False
         self.moving_right = False
         self.moving_left = False
 
         self.idle_frames = []
+        self.idleL_frames = []
         self.walk_frames = []
+        self.walkL_frames = []
         self.attack_frames = []
+        self.attackL_frames = []
+        self.jump_frames = []
+        self.jumpL_frames = []
 
         x_pos = self.info['idle_x_starts']
         y_pos = self.info['idle_y_starts']
@@ -81,10 +89,11 @@ class Character(Object):
 
     def move_left(self, flag=True):
         if flag and self.state is not State.WALK:
-            self.walk_state()
+            self.walkL_state()
         elif not self.moving_right and self.state is not State.IDLE:
-            self.idle_state()
+            self.idleL_state()
         self.moving_left = flag
+        self.flipped = flag
 
     def move_right(self, flag=True):
         if flag and self.state is not State.WALK:
@@ -92,12 +101,19 @@ class Character(Object):
         elif not self.moving_left and self.state is not State.IDLE:
             self.idle_state()
         self.moving_right = flag
+        self.flipped = False
 
     def idle_state(self):
         self.state = State.IDLE
         self.curr_frame = 0
         self.frame_count = self.info['idle_frames']
         self.curr_frames = self.idle_frames
+
+    def idleL_state(self):
+        self.state = State.IDLE
+        self.curr_frame = 0
+        self.frame_count = self.info['idleL_frames']
+        self.curr_frames = self.idleL_frames
 
     def walk_state(self):
         if self.state is State.ATTACK:
@@ -107,6 +123,12 @@ class Character(Object):
         self.frame_count = self.info['walk_frames']
         self.curr_frames = self.walk_frames
 
+    def walkL_state(self):
+        self.state = State.IDLE
+        self.curr_frame = 0
+        self.frame_count = self.info['walkL_frames']
+        self.curr_frames = self.walkL_frames
+
     def attack_state(self):
         if self.state == State.ATTACK:
             return
@@ -114,6 +136,14 @@ class Character(Object):
         self.curr_frame = 0
         self.frame_count = self.info['attack_frames']
         self.curr_frames = self.attack_frames
+
+    def attackL_state(self):
+        if self.state == State.ATTACK:
+            return
+        self.state = State.ATTACK
+        self.curr_frame = 0
+        self.frame_count = self.info['attackL_frames']
+        self.curr_frames = self.attackL_frames
 
 
 class Player(Character):
@@ -130,21 +160,47 @@ class Player(Character):
         self.rect.centerx = self.info['start_pos'][0]
         self.rect.bottom = self.info['start_pos'][1]
 
+        # set up animation arrays
+        x_pos = self.info['idleL_x_starts']
+        y_pos = self.info['idleL_y_starts']
+        for frame in range(self.info['idleL_frames']):
+            self.idleL_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+                                                    self.info['size'][0], self.info['size'][1])))
         x_pos = self.info['walk_x_starts']
         y_pos = self.info['walk_y_starts']
         for frame in range(self.info['walk_frames']):
             self.walk_frames.append(self.image_at((x_pos[frame], y_pos[frame],
                                                    self.info['size'][0], self.info['size'][1])))
+        x_pos = self.info['walkL_x_starts']
+        y_pos = self.info['walkL_y_starts']
+        for frame in range(self.info['walkL_frames']):
+            self.walkL_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+                                                    self.info['size'][0], self.info['size'][1])))
         x_pos = self.info['attack_x_starts']
         y_pos = self.info['attack_y_starts']
         for frame in range(self.info['attack_frames']):
             self.attack_frames.append(self.image_at((x_pos[frame], y_pos[frame],
                                                      self.info['size'][0], self.info['size'][1])))
+        x_pos = self.info['attackL_x_starts']
+        y_pos = self.info['attackL_y_starts']
+        for frame in range(self.info['attackL_frames']):
+            self.attackL_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+                                                      self.info['size'][0], self.info['size'][1])))
+        x_pos = self.info['jump_x_starts']
+        y_pos = self.info['jump_y_starts']
+        for frame in range(self.info['jump_frames']):
+            self.jump_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+                                                   self.info['size'][0], self.info['size'][1])))
+        x_pos = self.info['jumpL_x_starts']
+        y_pos = self.info['jumpL_y_starts']
+        for frame in range(self.info['jumpL_frames']):
+            self.jumpL_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+                                                    self.info['size'][0], self.info['size'][1])))
         self.idle_state()
 
     def gravity(self):
         if self.is_jumping:
-            self.movey += 7.2   #Edit this value to change jump height
+            self.movey += 2   #Edit this value to change jump height
 
     def control(self, x, y):
         """
