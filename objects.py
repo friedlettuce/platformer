@@ -70,80 +70,73 @@ class Character(Object):
         self.moving_right = False
         self.moving_left = False
 
-        self.idle_frames = []
-        self.idleL_frames = []
-        self.walk_frames = []
-        self.walkL_frames = []
-        self.attack_frames = []
-        self.attackL_frames = []
-        self.jump_frames = []
-        self.jumpL_frames = []
+        self.idle_r_frames = []
 
-        x_pos = self.info['idle_x_starts']
-        y_pos = self.info['idle_y_starts']
+        rx_pos = self.info['idle_rx_starts']
+        ry_pos = self.info['idle_ry_starts']
         for frame in range(self.info['idle_frames']):
-            self.idle_frames.append(self.image_at((x_pos[frame], y_pos[frame],
-                                                   self.info['size'][0], self.info['size'][1])))
+            self.idle_r_frames.append(self.image_at((rx_pos[frame], ry_pos[frame],
+                                                     self.info['size'][0], self.info['size'][1])))
         # Points to which array of frames to use
         self.curr_frames = None
 
     def move_left(self, flag=True):
         if flag and self.state is not State.WALK:
-            self.walkL_state()
+            self.walk_l_state()
         elif not self.moving_right and self.state is not State.IDLE:
-            self.idleL_state()
+            self.idle_l_state()
         self.moving_left = flag
         self.flipped = flag
 
     def move_right(self, flag=True):
         if flag and self.state is not State.WALK:
-            self.walk_state()
+            self.walk_r_state()
         elif not self.moving_left and self.state is not State.IDLE:
-            self.idle_state()
+            self.idle_r_state()
         self.moving_right = flag
         self.flipped = False
 
-    def idle_state(self):
+    def idle_r_state(self):
         self.state = State.IDLE
         self.curr_frame = 0
         self.frame_count = self.info['idle_frames']
-        self.curr_frames = self.idle_frames
+        self.curr_frames = self.idle_r_frames
 
-    def idleL_state(self):
+    def idle_l_state(self):
         self.state = State.IDLE
         self.curr_frame = 0
-        self.frame_count = self.info['idleL_frames']
-        self.curr_frames = self.idleL_frames
+        self.frame_count = self.info['idle_frames']
+        self.curr_frames = self.idle_l_frames
 
-    def walk_state(self):
+    def walk_r_state(self):
         if self.state is State.ATTACK:
             return
         self.state = State.WALK
         self.curr_frame = 0
         self.frame_count = self.info['walk_frames']
-        self.curr_frames = self.walk_frames
+        self.curr_frames = self.walk_r_frames
 
-    def walkL_state(self):
+    def walk_l_state(self):
         self.state = State.IDLE
         self.curr_frame = 0
-        self.frame_count = self.info['walkL_frames']
-        self.curr_frames = self.walkL_frames
+        self.frame_count = self.info['walk_frames']
+        self.curr_frames = self.walk_l_frames
 
-    def attack_state(self):
+    def attack_r_state(self):
         if self.state == State.ATTACK:
             return
         self.state = State.ATTACK
         self.curr_frame = 0
         self.frame_count = self.info['attack_frames']
-        self.curr_frames = self.attack_frames
+        self.curr_frames = self.attack_r_frames
 
-    def attackL_state(self):
+    def attack_l_state(self):
         if self.state == State.ATTACK:
             return
         self.state = State.ATTACK
         self.curr_frame = 0
-        self.frame_count = self.info['attackL_frames']
-        self.curr_frames = self.attackL_frames
+        self.frame_count = self.info['attack_frames']
+        self.curr_frames = self.attack_l_frames
 
 
 class Player(Character):
@@ -156,47 +149,55 @@ class Player(Character):
         self.walking_speed = settings.player_w_speed
         self.is_jumping = True
         self.is_falling = False
-        self.rect = self.idle_frames[0].get_rect()
+        self.rect = self.idle_r_frames[0].get_rect()
         self.rect.centerx = self.info['start_pos'][0]
         self.rect.bottom = self.info['start_pos'][1]
 
+        self.idle_l_frames = []
+        self.walk_r_frames = []
+        self.walk_l_frames = []
+        self.attack_r_frames = []
+        self.attack_l_frames = []
+        self.jump_r_frames = []
+        self.jump_l_frames = []
+
         # set up animation arrays
-        x_pos = self.info['idleL_x_starts']
-        y_pos = self.info['idleL_y_starts']
-        for frame in range(self.info['idleL_frames']):
-            self.idleL_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+        lx_pos = self.info['idle_lx_starts']
+        ly_pos = self.info['idle_ly_starts']
+        for frame in range(self.info['idle_frames']):
+            self.idle_l_frames.append(self.image_at((lx_pos[frame], ly_pos[frame],
                                                     self.info['size'][0], self.info['size'][1])))
-        x_pos = self.info['walk_x_starts']
-        y_pos = self.info['walk_y_starts']
+        rx_pos = self.info['walk_rx_starts']
+        ry_pos = self.info['walk_ry_starts']
         for frame in range(self.info['walk_frames']):
-            self.walk_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+            self.walk_r_frames.append(self.image_at((rx_pos[frame], ry_pos[frame],
                                                    self.info['size'][0], self.info['size'][1])))
-        x_pos = self.info['walkL_x_starts']
-        y_pos = self.info['walkL_y_starts']
-        for frame in range(self.info['walkL_frames']):
-            self.walkL_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+        lx_pos = self.info['walk_lx_starts']
+        ly_pos = self.info['walk_ly_starts']
+        for frame in range(self.info['walk_frames']):
+            self.walk_l_frames.append(self.image_at((lx_pos[frame], ly_pos[frame],
                                                     self.info['size'][0], self.info['size'][1])))
-        x_pos = self.info['attack_x_starts']
-        y_pos = self.info['attack_y_starts']
+        rx_pos = self.info['attack_rx_starts']
+        ry_pos = self.info['attack_ry_starts']
         for frame in range(self.info['attack_frames']):
-            self.attack_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+            self.attack_r_frames.append(self.image_at((rx_pos[frame], ry_pos[frame],
                                                      self.info['size'][0], self.info['size'][1])))
-        x_pos = self.info['attackL_x_starts']
-        y_pos = self.info['attackL_y_starts']
-        for frame in range(self.info['attackL_frames']):
-            self.attackL_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+        lx_pos = self.info['attack_lx_starts']
+        ly_pos = self.info['attack_ly_starts']
+        for frame in range(self.info['attack_frames']):
+            self.attack_l_frames.append(self.image_at((lx_pos[frame], ly_pos[frame],
                                                       self.info['size'][0], self.info['size'][1])))
-        x_pos = self.info['jump_x_starts']
-        y_pos = self.info['jump_y_starts']
+        rx_pos = self.info['jump_rx_starts']
+        ry_pos = self.info['jump_ry_starts']
         for frame in range(self.info['jump_frames']):
-            self.jump_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+            self.jump_r_frames.append(self.image_at((rx_pos[frame], ry_pos[frame],
                                                    self.info['size'][0], self.info['size'][1])))
-        x_pos = self.info['jumpL_x_starts']
-        y_pos = self.info['jumpL_y_starts']
-        for frame in range(self.info['jumpL_frames']):
-            self.jumpL_frames.append(self.image_at((x_pos[frame], y_pos[frame],
+        lx_pos = self.info['jump_lx_starts']
+        ly_pos = self.info['jump_ly_starts']
+        for frame in range(self.info['jump_frames']):
+            self.jump_l_frames.append(self.image_at((lx_pos[frame], ly_pos[frame],
                                                     self.info['size'][0], self.info['size'][1])))
-        self.idle_state()
+        self.idle_r_state()
 
     def gravity(self):
         if self.is_jumping:
@@ -221,7 +222,7 @@ class Player(Character):
             self.rect.centerx -= self.walking_speed
 
         if self.state is State.ATTACK and self.curr_frame + 1 is self.info['attack_frames']:
-            self.idle_state()
+            self.idle_r_state()
         else:
             self.inc_frame()
 
@@ -276,6 +277,7 @@ class Player(Character):
 
         self.rect.x += self.movex
         self.rect.y += self.movey
+
 
 class Enemy(pygame.sprite.Sprite):
     """
@@ -360,12 +362,12 @@ class Skeleton(Character):
         super().__init__(screen, settings.skeleton_sprite)
 
         # Need to update frame count and current frame when switching states
-        self.rect = self.idle_frames[0].get_rect()
+        self.rect = self.idle_r_frames[0].get_rect()
         self.rect.centerx = self.info['start_pos'][0]
         self.rect.bottom = self.info['start_pos'][1]
 
         self.frame_count = self.info['idle_frames']
-        self.curr_image = self.idle_frames[self.curr_frame]
+        self.curr_image = self.idle_r_frames[self.curr_frame]
         self.state = State.IDLE
 
         self.weapon = HauntedAxe(screen, settings)
@@ -374,7 +376,7 @@ class Skeleton(Character):
         self.weapon.update(self.rect)
         self.inc_frame()
         # Update per state
-        self.curr_image = self.idle_frames[self.curr_frame]
+        self.curr_image = self.idle_r_frames[self.curr_frame]
 
     def blitme(self):
         super().blitme()

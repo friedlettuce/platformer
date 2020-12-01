@@ -18,29 +18,25 @@ class Settings:
             'size': (48, 48),
             'start_pos': (self.screen_width / 2, self.screen_height - 50),
             'idle_frames': 13,
-            'idle_y_starts': (0, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 0),
-            'idle_x_starts': (0, 49, 49, 98, 98, 147, 147, 147, 98, 98, 49, 49, 0),
-            'idleL_frames': 13,
-            'idleL_y_starts': (1032, 885, 885, 885, 885, 885, 885, 885, 885, 885, 885, 885, 1032),
-            'idleL_x_starts': (0, 49, 49, 98, 98, 147, 147, 147, 98, 98, 49, 49, 0),
+            'idle_ry_starts': (0, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 147, 0),
+            'idle_rx_starts': (0, 49, 49, 98, 98, 147, 147, 147, 98, 98, 49, 49, 0),
+            'idle_ly_starts': (1032, 885, 885, 885, 885, 885, 885, 885, 885, 885, 885, 885, 1032),
+            'idle_lx_starts': (0, 49, 49, 98, 98, 147, 147, 147, 98, 98, 49, 49, 0),
             'walk_frames': 6,
-            'walk_x_starts': (49, 98, 147, 196, 245, 294),
-            'walk_y_starts': (49, 49, 49, 49, 49, 49),
-            'walkL_frames': 6,
-            'walkL_x_starts': (49, 98, 147, 196, 245, 294),
-            'walkL_y_starts': (983, 983, 983, 983, 983, 983),
+            'walk_rx_starts': (49, 98, 147, 196, 245, 294),
+            'walk_ry_starts': (49, 49, 49, 49, 49, 49),
+            'walk_lx_starts': (49, 98, 147, 196, 245, 294),
+            'walk_ly_starts': (983, 983, 983, 983, 983, 983),
             'attack_frames': 10,
-            'attack_y_starts': (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-            'attack_x_starts': (49, 98, 147, 196, 245, 294, 343, 392, 441, 490),
-            'attackL_frames': 10,
-            'attackL_y_starts': (1032, 1032, 1032, 1032, 1032, 1032, 1032, 1032, 1032, 1032),
-            'attackL_x_starts': (49, 98, 147, 196, 245, 294, 343, 392, 441, 490),
+            'attack_ry_starts': (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            'attack_rx_starts': (49, 98, 147, 196, 245, 294, 343, 392, 441, 490),
+            'attack_ly_starts': (1032, 1032, 1032, 1032, 1032, 1032, 1032, 1032, 1032, 1032),
+            'attack_lx_starts': (49, 98, 147, 196, 245, 294, 343, 392, 441, 490),
             'jump_frames': 4,
-            'jump_x_starts': (49, 98, 147, 196),
-            'jump_y_starts': (98, 98, 98, 98),
-            'jumpL_frames': 4,
-            'jumpL_x_starts': (49, 98, 147, 196),
-            'jumpL_y_starts': (934, 934, 934, 934)
+            'jump_rx_starts': (49, 98, 147, 196),
+            'jump_ry_starts': (98, 98, 98, 98),
+            'jump_lx_starts': (49, 98, 147, 196),
+            'jump_ly_starts': (934, 934, 934, 934)
         }
 
         # Throwing Knife Settings
@@ -55,8 +51,8 @@ class Settings:
             'size': (48, 48),
             'start_pos': (self.screen_width / 3, self.screen_height - 50),
             'idle_frames': 3,
-            'idle_y_starts': (0, 0, 0),
-            'idle_x_starts': (0, 49, 98)
+            'idle_ry_starts': (0, 0, 0),
+            'idle_rx_starts': (0, 49, 98)
         }
 
         self.haunted_axe = {
