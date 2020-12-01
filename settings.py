@@ -12,6 +12,7 @@ class Settings:
         self.background_img = "images/background_full.png"
         self.brick_ground_img = "images/brick_platform.png"
 
+        self.player_health = 100
         self.player_w_speed = 7  # Must be a digit
         self.player_sprite = {
             'location': "images/MainCharacter.png",

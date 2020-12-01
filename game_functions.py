@@ -22,9 +22,12 @@ def check_keydown_events(event, character, knives, settings, screen):
     if event.key == pygame.K_SPACE:
         character.jump()
     if event.key == pygame.K_f or event.key == ord('f'):
-        character.attack_state()
+        if character.flipped:
+            character.attack_l_state()
+        else:
+            character.attack_r_state()
     if event.key == pygame.K_g:
-        throw_knife(settings, screen, character, knives)
+        throw_knife(settings, screen, character, knives, character.flipped)
 
 def check_keyup_events(event, character):
     # this function deals with any keyup event
@@ -53,8 +56,8 @@ def update_knives(knives):
         if knife.rect.right <= 0 or knife.rect.left >= 1000:
             knives.remove(knife)
 
-def throw_knife(settings, screen, character, knives):
+def throw_knife(settings, screen, character, knives, flipped):
     # create a new bullet if there isn't 3 currently on screen
     if len(knives) < settings.knives_allowed:
-        new_knife = Knife(settings, screen, character)
+        new_knife = Knife(settings, screen, character, flipped)
         knives.add(new_knife)

@@ -86,7 +86,7 @@ class Character(Object):
         elif not self.moving_right and self.state is not State.IDLE:
             self.idle_l_state()
         self.moving_left = flag
-        self.flipped = flag
+        self.flipped = True
 
     def move_right(self, flag=True):
         if flag and self.state is not State.WALK:
@@ -138,6 +138,22 @@ class Character(Object):
         self.frame_count = self.info['attack_frames']
         self.curr_frames = self.attack_l_frames
 
+    def jump_r_state(self):
+        if self.state == State.JUMP:
+            return
+        self.state = State.JUMP
+        self.curr_frame = 0
+        self.frame_count = self.info['jump_frames']
+        self.curr_frames = self.jump_r_frames
+
+    def jump_l_state(self):
+        if self.state == State.JUMP:
+            return
+        self.state = State.JUMP
+        self.curr_frame = 0
+        self.frame_count = self.info['jump_frames']
+        self.curr_frames = self.jump_l_frames
+
 
 class Player(Character):
 
@@ -145,7 +161,7 @@ class Player(Character):
         self.movex = 0
         self.movey = 0
         super().__init__(screen, settings.player_sprite)
-
+        self.health = settings.player_health
         self.walking_speed = settings.player_w_speed
         self.is_jumping = True
         self.is_falling = False
@@ -197,11 +213,14 @@ class Player(Character):
         for frame in range(self.info['jump_frames']):
             self.jump_l_frames.append(self.image_at((lx_pos[frame], ly_pos[frame],
                                                     self.info['size'][0], self.info['size'][1])))
-        self.idle_r_state()
+        if self.flipped:
+            self.idle_l_state()
+        else:
+            self.idle_r_state()
 
     def gravity(self):
         if self.is_jumping:
-            self.movey += 2   #Edit this value to change jump height
+            self.movey += 4   # Edit this value to change jump height
 
     def control(self, x, y):
         """
@@ -222,7 +241,10 @@ class Player(Character):
             self.rect.centerx -= self.walking_speed
 
         if self.state is State.ATTACK and self.curr_frame + 1 is self.info['attack_frames']:
-            self.idle_r_state()
+            if self.flipped:
+                self.idle_l_state()
+            else:
+                self.idle_r_state()
         else:
             self.inc_frame()
 
@@ -432,11 +454,11 @@ class HauntedAxe(Weapon):
 
 class Knife(Sprite):
     # class to manage player's throwing knives
-    def __init__(self, settings, screen, character):
+    def __init__(self, settings, screen, character, flipped):
         # create a knife at player's position
         super(Knife, self).__init__()
         self.screen = screen
-
+        self.flipped = flipped
         # create knife at 0,0 and then move to correct position
         self.rect = pygame.Rect(0, 0, settings.knife_width, settings.knife_height)
         self.rect.centerx = character.rect.centerx
@@ -450,7 +472,10 @@ class Knife(Sprite):
     def update(self):
         # Move knife horizontally
         # update decimal position
-        self.x += self.speed
+        if self.flipped:
+            self.x -= self.speed
+        else:
+            self.x += self.speed
         # update rect
         self.rect.x = self.x
 
