@@ -33,7 +33,7 @@ def tower_master():
 
         character.update()
         character.gravity()
-        skeleton.update()
+        gf.update_enemies(skeleton, character)
 
         gf.update_knives(knives, skeleton)
 

@@ -65,6 +65,7 @@ class State(Enum):
     WALK = 1
     ATTACK = 2
     JUMP = 3
+    DAMAGE = 4
 
 
 class Character(Object):
@@ -102,6 +103,9 @@ class Character(Object):
             self.idle_r_state()
         self.moving_right = flag
         self.flipped = False
+
+    def knockback(self):
+        self.damage_state()
 
     def idle_r_state(self):
         self.state = State.IDLE
@@ -161,23 +165,31 @@ class Character(Object):
         self.frame_count = self.info['jump_frames']
         self.curr_frames = self.jump_l_frames
 
+    def damage_state(self):
+        if self.state == State.DAMAGE:
+            return
+        self.state = State.DAMAGE
+
 
 class Player(Character):
 
     def __init__(self, screen, settings):
+        self.counter = 0
         self.movex = 0
         self.movey = 0
         super().__init__(screen, settings.player_sprite)
         self.health = settings.player_health
         self.walking_speed = settings.player_w_speed
+        self.knockback_speed = settings.player_k_speed
+        self.knockback_time = settings.player_k_time
         self.is_jumping = True
         self.is_falling = False
         self.rect = self.idle_r_frames[0].get_rect()
         self.rect.centerx = self.info['start_pos'][0]
         self.rect.bottom = self.info['start_pos'][1]
 
-        self.hitbox = (self.rect.x + 6, self.rect.y + 1, 34, 46)
-        self.sword_hitbox = (self.rect.right - 7, self.rect.top + 4, 24, 32)
+        self.hitbox = pygame.Rect(self.rect.x + 6, self.rect.y + 1, 34, 46)
+        self.sword_hitbox = pygame.Rect(self.rect.right - 7, self.rect.top + 4, 24, 32)
 
         self.idle_l_frames = []
         self.walk_r_frames = []
@@ -230,15 +242,25 @@ class Player(Character):
 
     def blitme(self):
         super().blitme()
-        self.hitbox = (self.rect.x + 6, self.rect.y + 1, 34, 46)
+        # Update hitbox
+        self.hitbox = pygame.Rect(self.rect.x + 6, self.rect.y + 1, 34, 46)
         pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 2)
+        # If attacking, create hitbox for sword
         if self.state == State.ATTACK:
             if not self.flipped:
-                self.sword_hitbox = (self.rect.right - 7, self.rect.top + 4, 24, 32)
+                self.sword_hitbox = pygame.Rect(self.rect.right - 7, self.rect.top + 4, 24, 32)
                 pygame.draw.rect(self.screen, (255, 0, 0), self.sword_hitbox, 2)
             else:
-                self.sword_hitbox = (self.rect.left - 20, self.rect.top + 4, 24, 32)
+                self.sword_hitbox = pygame.Rect(self.rect.left - 20, self.rect.top + 4, 24, 32)
                 pygame.draw.rect(self.screen, (255, 0, 0), self.sword_hitbox, 2)
+        # Create Health Bar
+        pygame.draw.rect(self.screen, (255, 0, 0), (10, 20, 50, 10))
+        pygame.draw.rect(self.screen, (0, 128, 0), (10, 20, 50 - (50 - self.health), 10))
+
+    def hit(self):
+        if not self.state == State.DAMAGE:
+            self.knockback()
+            self.health -= 10
 
     def gravity(self):
         if self.is_jumping:
@@ -255,6 +277,17 @@ class Player(Character):
             self.rect.centerx += self.walking_speed
         elif self.moving_left:
             self.rect.centerx -= self.walking_speed
+
+        if self.state == State.DAMAGE:
+            if self.counter < self.knockback_time:
+                if self.flipped:
+                    self.rect.centerx += self.knockback_speed
+                else:
+                    self.rect.centerx -= self.knockback_speed
+                self.counter += 1
+            else:
+                self.counter = 0
+                self.state = State.IDLE
 
         if self.state is State.ATTACK and self.curr_frame + 1 is self.info['attack_frames']:
             if self.flipped:
@@ -280,14 +313,6 @@ class Player(Character):
             if self.frame > 3 * ani:
                 self.frame = 0
             self.image = self.images[self.frame // ani]
-
-
-
-            # collisions
-        enemy_hit_list = pygame.sprite.spritecollide(self, enemy_list, False)
-        #for enemy in enemy_hit_list:
-            #self.health -= 1
-            # print(self.health)
 
         ground_hit_list = pygame.sprite.spritecollide(self, ground_list, False)
         for g in ground_hit_list:
@@ -409,7 +434,7 @@ class Skeleton(Character):
         self.frame_count = self.info['idle_frames']
         self.curr_image = self.idle_r_frames[self.curr_frame]
         self.state = State.IDLE
-        self.hitbox = (self.rect.x + 7, self.rect.y + 1, 34, 42)
+        self.hitbox = pygame.Rect(self.rect.x + 7, self.rect.y + 1, 34, 42)
 
         self.health = 10
         self.visible = True
@@ -425,17 +450,19 @@ class Skeleton(Character):
         if self.visible:
             super().blitme()
             # Update hitbox
-            self.hitbox = (self.rect.x + 7, self.rect.y + 1, 34, 42)
+            self.hitbox = pygame.Rect(self.rect.x + 7, self.rect.y + 1, 34, 42)
             # un comment line below to debug hitbox
-            # pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 2)
+            pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 2)
             # health bar
-            pygame.draw.rect(self.screen, (255, 0, 0), (self.hitbox[0], self.hitbox[1] - 20, 50, 10))
-            pygame.draw.rect(self.screen, (0, 128, 0), (self.hitbox[0], self.hitbox[1] - 20,
-                                                        50 - (5 * (10 - self.health)), 10))
+            pygame.draw.rect(self.screen, (255, 0, 0), (self.hitbox[0] - 10, self.hitbox[1] - 20, 50, 5))
+            pygame.draw.rect(self.screen, (0, 128, 0), (self.hitbox[0] - 10, self.hitbox[1] - 20,
+                                                        50 - (5 * (10 - self.health)), 5))
 
     def hit_knife(self):
         self.health -= 5
-        print("hit")
+
+    def hit_sword(self):
+        self.health -= 10
 
 
 class Weapon(Object):

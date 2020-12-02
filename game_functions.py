@@ -70,4 +70,9 @@ def throw_knife(settings, screen, character, knives, flipped):
         new_knife = Knife(settings, screen, character, flipped)
         knives.add(new_knife)
 
-
+def update_enemies(skeleton, character):
+    skeleton.update()
+    if character.hitbox.colliderect(skeleton.hitbox):
+        character.hit()
+    if skeleton.hitbox.colliderect(character.sword_hitbox):
+        skeleton.hit_sword()
