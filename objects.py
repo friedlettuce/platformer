@@ -15,6 +15,15 @@ BLUE = (25, 25, 200)
 BLACK = (23, 23, 23)
 WHITE = (254, 254, 254)
 ALPHA = (0, 255, 0)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+# Screen dimensions
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
 
 class Platform(pygame.sprite.Sprite):
@@ -95,6 +104,8 @@ class Character(Object):
             self.idle_r_state()
         self.moving_right = flag
         self.flipped = False
+
+
 
     def idle_r_state(self):
         self.state = State.IDLE
@@ -220,7 +231,7 @@ class Player(Character):
 
     def gravity(self):
         if self.is_jumping:
-            self.movey += 4   # Edit this value to change jump height
+            self.movey += 3.2   # Edit this value to change jump height
 
     def control(self, x, y):
         """
@@ -236,8 +247,12 @@ class Player(Character):
     def update(self):
 
         if self.moving_right:
+            self.is_jumping = True
+
             self.rect.centerx += self.walking_speed
         elif self.moving_left:
+            self.is_jumping = True
+
             self.rect.centerx -= self.walking_speed
 
         if self.state is State.ATTACK and self.curr_frame + 1 is self.info['attack_frames']:
@@ -264,6 +279,8 @@ class Player(Character):
             if self.frame > 3 * ani:
                 self.frame = 0
             self.image = self.images[self.frame // ani]
+
+
 
             # collisions
         enemy_hit_list = pygame.sprite.spritecollide(self, enemy_list, False)
@@ -336,7 +353,7 @@ class Level:
         i = 0
         if lvl == 1:
             while i < len(gloc):
-                ground = Platform(gloc[i], worldy - ty, tx, ty, 'tile-ground.png')
+                ground = Platform(gloc[i], worldy - ty, tx, ty, 'images/brick_platform.png')
                 ground_list.add(ground)
                 i = i + 1
 
@@ -363,11 +380,11 @@ class Level:
         if lvl == 1:
             ploc.append((200, worldy - ty - 128, 3))
             ploc.append((300, worldy - ty - 256, 3))
-            ploc.append((550, worldy - ty - 128, 4))
+            ploc.append((500, worldy - ty - 128, 4))
             while i < len(ploc):
                 j = 0
                 while j <= ploc[i][2]:
-                    plat = Platform((ploc[i][0] + (j * tx)), ploc[i][1], tx, ty, 'tile.png')
+                    plat = Platform((ploc[i][0] + (j * tx)), ploc[i][1], tx, ty, 'images/brick_platform.png')
                     plat_list.add(plat)
                     j = j + 1
                 print('run' + str(i) + str(ploc[i]))
@@ -482,3 +499,18 @@ class Knife(Sprite):
     def draw_knife(self):
         # draw knife on screen
         pygame.draw.rect(self.screen, self.color, self.rect)
+
+
+class Platform(pygame.sprite.Sprite):
+    """ Platform the user can jump on """
+
+    def __init__(self, width, height):
+        """ Platform constructor. Assumes constructed with user passing in
+            an array of 5 numbers like what's defined at the top of this
+            code. """
+        super().__init__()
+
+        self.image = pygame.Surface([width, height])
+        self.image.fill(GREEN)
+
+        self.rect = self.image.get_rect()

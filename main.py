@@ -29,11 +29,12 @@ def tower_master():
         gf.check_events(settings, screen, character, knives)
 
         character.update()
+        character.gravity()
         skeleton.update()
 
         gf.update_knives(knives)
 
-        gf.update_screen(settings, screen, character, bg, skeleton, knives)
+        gf.update_screen(settings, screen, character, bg, skeleton, knives, )
 
 
 tower_master()
