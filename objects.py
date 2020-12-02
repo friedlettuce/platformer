@@ -255,11 +255,12 @@ class Player(Character):
                 pygame.draw.rect(self.screen, (255, 0, 0), self.sword_hitbox, 2)
         # Create Health Bar
         pygame.draw.rect(self.screen, (255, 0, 0), (10, 20, 50, 10))
-        pygame.draw.rect(self.screen, (0, 128, 0), (10, 20, 50 - (5 * (10 - self.health)), 10))
+        pygame.draw.rect(self.screen, (0, 128, 0), (10, 20, 50 - (50 - self.health), 10))
 
     def hit(self):
-        self.knockback()
-        self.health -= 10
+        if not self.state == State.DAMAGE:
+            self.knockback()
+            self.health -= 10
 
     def gravity(self):
         if self.is_jumping:
