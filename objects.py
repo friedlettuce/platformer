@@ -1,5 +1,6 @@
 import pygame
 from pygame.sprite import Sprite
+import settings
 from enum import Enum
 import os
 #Guide used to implement jump and platform mechanics
@@ -175,6 +176,9 @@ class Player(Character):
         self.rect.centerx = self.info['start_pos'][0]
         self.rect.bottom = self.info['start_pos'][1]
 
+        self.hitbox = (self.rect.x + 6, self.rect.y + 1, 34, 46)
+        self.sword_hitbox = (self.rect.right - 7, self.rect.top + 4, 24, 32)
+
         self.idle_l_frames = []
         self.walk_r_frames = []
         self.walk_l_frames = []
@@ -223,6 +227,18 @@ class Player(Character):
             self.idle_l_state()
         else:
             self.idle_r_state()
+
+    def blitme(self):
+        super().blitme()
+        self.hitbox = (self.rect.x + 6, self.rect.y + 1, 34, 46)
+        pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 2)
+        if self.state == State.ATTACK:
+            if not self.flipped:
+                self.sword_hitbox = (self.rect.right - 7, self.rect.top + 4, 24, 32)
+                pygame.draw.rect(self.screen, (255, 0, 0), self.sword_hitbox, 2)
+            else:
+                self.sword_hitbox = (self.rect.left - 20, self.rect.top + 4, 24, 32)
+                pygame.draw.rect(self.screen, (255, 0, 0), self.sword_hitbox, 2)
 
     def gravity(self):
         if self.is_jumping:
@@ -393,18 +409,33 @@ class Skeleton(Character):
         self.frame_count = self.info['idle_frames']
         self.curr_image = self.idle_r_frames[self.curr_frame]
         self.state = State.IDLE
+        self.hitbox = (self.rect.x + 7, self.rect.y + 1, 34, 42)
 
-        self.weapon = HauntedAxe(screen, settings)
+        self.health = 10
+        self.visible = True
 
     def update(self):
-        self.weapon.update(self.rect)
+        if self.health <= 0:
+            self.visible = False
         self.inc_frame()
         # Update per state
         self.curr_image = self.idle_r_frames[self.curr_frame]
 
     def blitme(self):
-        super().blitme()
-        self.weapon.blitme()
+        if self.visible:
+            super().blitme()
+            # Update hitbox
+            self.hitbox = (self.rect.x + 7, self.rect.y + 1, 34, 42)
+            # un comment line below to debug hitbox
+            # pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 2)
+            # health bar
+            pygame.draw.rect(self.screen, (255, 0, 0), (self.hitbox[0], self.hitbox[1] - 20, 50, 10))
+            pygame.draw.rect(self.screen, (0, 128, 0), (self.hitbox[0], self.hitbox[1] - 20,
+                                                        50 - (5 * (10 - self.health)), 10))
+
+    def hit_knife(self):
+        self.health -= 5
+        print("hit")
 
 
 class Weapon(Object):
@@ -461,10 +492,14 @@ class Knife(Sprite):
         super(Knife, self).__init__()
         self.screen = screen
         self.flipped = flipped
+        self.width = settings.knife_width
+        self.height = settings.knife_height
         # create knife at 0,0 and then move to correct position
-        self.rect = pygame.Rect(0, 0, settings.knife_width, settings.knife_height)
+        self.rect = pygame.Rect(0, 0, self.width, self.height)
         self.rect.centerx = character.rect.centerx
         self.rect.top = character.rect.top + 20
+        self.x = self.rect.x
+        self.y = self.rect.y
 
         # store position as decimal value
         self.x = float(self.rect.x)

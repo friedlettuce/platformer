@@ -50,7 +50,7 @@ class Settings:
         self.skeleton_sprite = {
             'location': "images/basic_enemies.png",
             'size': (48, 48),
-            'start_pos': (self.screen_width / 3, self.screen_height - 50),
+            'start_pos': (self.screen_width / 3, self.screen_height - 56),
             'idle_frames': 3,
             'idle_ry_starts': (0, 0, 0),
             'idle_rx_starts': (0, 49, 98)

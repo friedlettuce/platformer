@@ -22,20 +22,21 @@ def tower_master():
     # group to store throwing knives
     knives = Group()
     platforms = Group()
+    enemies = Group()
 
     # Main Game Loop
     while True:
         clock.tick(settings.fps)
 
-        gf.check_events(settings, screen, character, knives)
+        gf.check_events(settings, screen, character, knives, platforms, enemies)
 
         character.update()
         character.gravity()
         skeleton.update()
 
-        gf.update_knives(knives)
+        gf.update_knives(knives, skeleton)
 
-        gf.update_screen(settings, screen, character, bg, skeleton, knives, )
+        gf.update_screen(settings, screen, character, bg, skeleton, knives, platforms, enemies)
 
 
 tower_master()
