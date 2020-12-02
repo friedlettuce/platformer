@@ -30,6 +30,7 @@ def check_keydown_events(event, character, knives, settings, screen):
     if event.key == pygame.K_g:
         throw_knife(settings, screen, character, knives, character.flipped)
 
+
 def check_keyup_events(event, character):
     # this function deals with any keyup event
     if event.key == pygame.K_LEFT or event.key == ord('a'):

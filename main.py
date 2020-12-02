@@ -1,8 +1,9 @@
+import pygame_menu
 import pygame
 from pygame.sprite import Group
 from settings import Settings
 import game_functions as gf
-from objects import Player, Skeleton
+from objects import Player, Skeleton, Level, Platform
 
 
 def tower_master():
@@ -38,5 +39,24 @@ def tower_master():
 
         gf.update_screen(settings, screen, character, bg, skeleton, knives, platforms, enemies)
 
+pygame.init()
+surface = pygame.display.set_mode((600, 400))
 
-tower_master()
+def set_difficulty(value, difficulty):
+    # Do the job here !
+    pass
+
+def start_the_game():
+    tower_master()
+    pass
+
+menu = pygame_menu.Menu(300, 400, 'Tower Master v0.0.1',
+                       theme=pygame_menu.themes.THEME_BLUE)
+
+menu.add_text_input('Please enter name:', default='Hero')
+menu.add_selector('Level Selector :', [('Level 1', 1), ('Level 2', 2)], onchange=set_difficulty)
+menu.add_button('Start Game', start_the_game)
+menu.add_button('Exit Game', pygame_menu.events.EXIT)
+surface = pygame.display.set_mode((600, 400))
+
+menu.mainloop(surface)

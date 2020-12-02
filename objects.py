@@ -29,7 +29,7 @@ SCREEN_HEIGHT = 600
 class Platform(pygame.sprite.Sprite):
     def __init__(self, xloc, yloc, imgw, imgh, img):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join('images', 'brick_platform' + '.png'))
+        self.image = pygame.image.load(os.path.join( 'brick_platform' + '.png'))
         self.image.set_colorkey(ALPHA)
         self.rect = self.image.get_rect()
         self.rect.y = yloc
@@ -354,7 +354,7 @@ class Level:
         i = 0
         if lvl == 1:
             while i < len(gloc):
-                ground = Platform(gloc[i], worldy - ty, tx, ty, 'images/brick_platform.png')
+                ground = Platform(gloc[i], worldy - ty, tx, ty, 'brick_platform.png')
                 ground_list.add(ground)
                 i = i + 1
 
@@ -479,6 +479,15 @@ while i <= (worldx / tx) + tx:
 ground_list = Level.ground(1, gloc, tx, ty)
 plat_list = Level.platform(1, tx, ty)
 
+class Platform(pygame.sprite.Sprite):
+    def __init__(self, xloc, yloc, imgw, imgh, img):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join('images', 'brick_platform.png')).convert()
+        self.image.convert_alpha()
+        self.image.set_colorkey(ALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.y = yloc
+        self.rect.x = xloc
 
 
 class HauntedAxe(Weapon):
@@ -521,16 +530,3 @@ class Knife(Sprite):
         pygame.draw.rect(self.screen, self.color, self.rect)
 
 
-class Platform(pygame.sprite.Sprite):
-    """ Platform the user can jump on """
-
-    def __init__(self, width, height):
-        """ Platform constructor. Assumes constructed with user passing in
-            an array of 5 numbers like what's defined at the top of this
-            code. """
-        super().__init__()
-
-        self.image = pygame.Surface([width, height])
-        self.image.fill(GREEN)
-
-        self.rect = self.image.get_rect()
