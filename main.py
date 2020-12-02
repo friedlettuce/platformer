@@ -21,6 +21,7 @@ def tower_master():
 
     # group to store throwing knives
     knives = Group()
+    platforms = Group()
 
     # Main Game Loop
     while True:

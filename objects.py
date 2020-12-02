@@ -35,9 +35,7 @@ class Platform(pygame.sprite.Sprite):
         self.rect.x = xloc
 
 
-
 class Object:
-
     def __init__(self, screen, info):
         self.screen = screen
         self.curr_image = None
@@ -103,8 +101,6 @@ class Character(Object):
             self.idle_r_state()
         self.moving_right = flag
         self.flipped = False
-
-
 
     def idle_r_state(self):
         self.state = State.IDLE
@@ -232,12 +228,6 @@ class Player(Character):
         if self.is_jumping:
             self.movey += 3.2   # Edit this value to change jump height
 
-    def control(self, x, y):
-        """
-        control player movement
-        """
-        self.movex += x
-
     def jump(self):
         if self.is_jumping is False:
             self.is_falling = False
@@ -246,12 +236,8 @@ class Player(Character):
     def update(self):
 
         if self.moving_right:
-            self.is_jumping = True
-
             self.rect.centerx += self.walking_speed
         elif self.moving_left:
-            self.is_jumping = True
-
             self.rect.centerx -= self.walking_speed
 
         if self.state is State.ATTACK and self.curr_frame + 1 is self.info['attack_frames']:
