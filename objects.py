@@ -1,7 +1,6 @@
 import pygame
 from pygame.sprite import Sprite
 from enum import Enum
-import settings
 import os
 #Guide used to implement jump and platform mechanics
 #https://opensource.com/article/19/12/jumping-python-platformer-game
