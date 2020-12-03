@@ -124,7 +124,7 @@ class Character(Object):
         self.curr_frames = self.idle_l_frames
 
     def walk_r_state(self):
-        if self.state is State.ATTACK:
+        if self.state is State.ATTACK or self.state is State.DASH:
             return
         self.state = State.WALK
         self.curr_frame = 0
@@ -132,13 +132,15 @@ class Character(Object):
         self.curr_frames = self.walk_r_frames
 
     def walk_l_state(self):
+        if self.state is State.ATTACK or self.state is State.DASH:
+            return
         self.state = State.IDLE
         self.curr_frame = 0
         self.frame_count = self.info['walk_frames']
         self.curr_frames = self.walk_l_frames
 
     def attack_r_state(self):
-        if self.state == State.ATTACK:
+        if self.state == State.ATTACK or self.state is State.DASH:
             return
         self.state = State.ATTACK
         self.curr_frame = 0
@@ -146,7 +148,7 @@ class Character(Object):
         self.curr_frames = self.attack_r_frames
 
     def attack_l_state(self):
-        if self.state == State.ATTACK:
+        if self.state == State.ATTACK or self.state is State.DASH:
             return
         self.state = State.ATTACK
         self.curr_frame = 0
@@ -154,7 +156,7 @@ class Character(Object):
         self.curr_frames = self.attack_l_frames
 
     def jump_r_state(self):
-        if self.state == State.JUMP:
+        if self.state == State.JUMP or self.state is State.DASH:
             return
         self.state = State.JUMP
         self.curr_frame = 0
@@ -162,7 +164,7 @@ class Character(Object):
         self.curr_frames = self.jump_r_frames
 
     def jump_l_state(self):
-        if self.state == State.JUMP:
+        if self.state == State.JUMP or self.state is State.DASH:
             return
         self.state = State.JUMP
         self.curr_frame = 0
@@ -170,7 +172,7 @@ class Character(Object):
         self.curr_frames = self.jump_l_frames
 
     def dash_r_state(self):
-        if self.state == State.DASH:
+        if self.state == State.DASH or self.state is State.ATTACK:
             return
         self.state = State.DASH
         self.curr_frame = 0
@@ -178,7 +180,7 @@ class Character(Object):
         self.curr_frames = self.dash_r_frames
 
     def dash_l_state(self):
-        if self.state == State.DASH:
+        if self.state == State.DASH or self.state is State.ATTACK:
             return
         self.state = State.DASH
         self.curr_frame = 0
@@ -200,6 +202,7 @@ class Player(Character):
         super().__init__(screen, settings.player_sprite)
         self.health = settings.player_health
         self.walking_speed = settings.player_w_speed
+        self.dash_speed = settings.player_d_speed
         self.knockback_speed = settings.player_k_speed
         self.knockback_time = settings.player_k_time
         self.is_jumping = True
@@ -311,6 +314,15 @@ class Player(Character):
             self.rect.centerx += self.walking_speed
         elif self.moving_left:
             self.rect.centerx -= self.walking_speed
+        if self.state is State.DASH:
+            if self.flipped:
+                self.rect.centerx -= self.dash_speed
+                if not self.moving_left:
+                    self.rect.centerx -= self.walking_speed
+            else:
+                self.rect.centerx += self.dash_speed
+                if not self.moving_right:
+                    self.rect.centerx += self.walking_speed
 
         if self.state == State.DAMAGE:
             if self.counter < self.knockback_time:
@@ -335,18 +347,18 @@ class Player(Character):
 
         if self.movex < 0:
             self.is_jumping = True
-            self.frame += 1
-            if self.frame > 3 * ani:
-                self.frame = 0
-            self.image = pygame.transform.flip(self.images[self.frame // ani], True, False)
+            self.inc_frame()
+            if self.curr_frame > 3 * ani:
+                self.curr_frame = 0
+            self.curr_image = pygame.transform.flip(self.curr_frames[self.curr_frame // ani], True, False)
 
             # moving right
         if self.movex > 0:
             self.is_jumping = True
-            self.frame += 1
-            if self.frame > 3 * ani:
-                self.frame = 0
-            self.image = self.images[self.frame // ani]
+            self.inc_frame()
+            if self.curr_frame > 3 * ani:
+                self.curr_frame = 0
+            self.curr_image = self.curr_frames[self.curr_frame // ani]
 
         ground_hit_list = pygame.sprite.spritecollide(self, ground_list, False)
         for g in ground_hit_list:

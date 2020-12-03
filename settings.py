@@ -14,6 +14,7 @@ class Settings:
 
         self.player_health = 50
         self.player_w_speed = 7  # Must be a digit
+        self.player_d_speed = 4
         self.player_k_speed = 10
         self.player_k_time = 8
         self.player_sprite = {

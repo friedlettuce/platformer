@@ -44,9 +44,9 @@ def check_keyup_events(event, character):
         character.move_right(False)
     if event.key == pygame.K_LSHIFT:
         if character.flipped:
-            character.move_left(False)
+            character.idle_l_state()
         else:
-            character.move_right(False)
+            character.idle_r_state()
 
 def update_screen(settings, screen, character, bg, skeleton, knives, platforms, enemies, floor):
     # this is where the screen is updated
