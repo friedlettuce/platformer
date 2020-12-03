@@ -209,6 +209,7 @@ class Player(Character):
         self.knockback_time = settings.player_k_time
         self.is_jumping = True
         self.is_falling = False
+        self.is_grounded = True
         self.rect = self.idle_r_frames[0].get_rect()
         self.rect.centerx = self.info['start_pos'][0]
         self.rect.bottom = self.info['start_pos'][1]
