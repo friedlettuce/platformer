@@ -48,7 +48,7 @@ def check_keyup_events(event, character):
         else:
             character.move_right(False)
 
-def update_screen(settings, screen, character, bg, skeleton, knives, platforms, enemies):
+def update_screen(settings, screen, character, bg, skeleton, knives, platforms, enemies, floor):
     # this is where the screen is updated
     screen.fill(settings.white)
     screen.blit(bg, (0, 0))
@@ -57,6 +57,12 @@ def update_screen(settings, screen, character, bg, skeleton, knives, platforms, 
     # redraw all knives
     for knife in knives.sprites():
         knife.draw_knife()
+    # draw all ground
+    for ground in floor:
+        screen.blit(ground.image, ground.rect)
+    # draw all platforms
+    for platform in platforms.sprites():
+        screen.blit(platform.image, platform.rect)
     pygame.display.flip()
 
 def update_knives(knives, skeleton):
@@ -86,3 +92,5 @@ def update_enemies(skeleton, character):
         character.hit()
     if skeleton.hitbox.colliderect(character.sword_hitbox):
         skeleton.hit_sword()
+
+

@@ -41,10 +41,10 @@ class Settings:
             'jump_lx_starts': (49, 98, 147, 196),
             'jump_ly_starts': (934, 934, 934, 934),
             'dash_frames': 6,
-            'dash_rx_starts': (58, 107, 156, 205, 254, 303),
-            'dash_ry_starts': (201, 203, 203, 202, 202, 202),
-            'dash_lx_starts': (64, 112, 161, 211, 260, 309),
-            'dash_ly_starts': (841, 843, 843, 842, 842, 842)
+            'dash_rx_starts': (49, 98, 147, 196, 245, 294),
+            'dash_ry_starts': (196, 196, 196, 196, 196, 196),
+            'dash_lx_starts': (49, 98, 147, 196, 245, 294),
+            'dash_ly_starts': (836, 836, 836, 836, 836, 836)
         }
 
         # Throwing Knife Settings

@@ -27,13 +27,16 @@ SCREEN_HEIGHT = 600
 
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, xloc, yloc, imgw, imgh, img):
+    def __init__(self, xloc, yloc, imgw, imgh):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join( 'brick_platform' + '.png'))
+        self.image = pygame.image.load(os.path.join('images/brick_platform.png'))
         self.image.set_colorkey(ALPHA)
         self.rect = self.image.get_rect()
         self.rect.y = yloc
         self.rect.x = xloc
+        self.width = imgw
+        self.height = imgh
+
 
 
 class Object:
@@ -410,7 +413,7 @@ class Level:
         i = 0
         if lvl == 1:
             while i < len(gloc):
-                ground = Platform(gloc[i], worldy - ty, tx, ty, 'brick_platform.png')
+                ground = Platform(gloc[i], worldy - ty, tx, ty)
                 ground_list.add(ground)
                 i = i + 1
 
@@ -441,7 +444,7 @@ class Level:
             while i < len(ploc):
                 j = 0
                 while j <= ploc[i][2]:
-                    plat = Platform((ploc[i][0] + (j * tx)), ploc[i][1], tx, ty, 'images/brick_platform.png')
+                    plat = Platform((ploc[i][0] + (j * tx)), ploc[i][1], tx, ty)
                     plat_list.add(plat)
                     j = j + 1
                 print('run' + str(i) + str(ploc[i]))
@@ -537,15 +540,7 @@ while i <= (worldx / tx) + tx:
 ground_list = Level.ground(1, gloc, tx, ty)
 plat_list = Level.platform(1, tx, ty)
 
-class Platform(pygame.sprite.Sprite):
-    def __init__(self, xloc, yloc, imgw, imgh, img):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join('images', 'brick_platform.png')).convert()
-        self.image.convert_alpha()
-        self.image.set_colorkey(ALPHA)
-        self.rect = self.image.get_rect()
-        self.rect.y = yloc
-        self.rect.x = xloc
+
 
 
 class HauntedAxe(Weapon):
