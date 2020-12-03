@@ -66,6 +66,7 @@ class State(Enum):
     ATTACK = 2
     JUMP = 3
     DAMAGE = 4
+    DASH = 5
 
 
 class Character(Object):
@@ -165,6 +166,22 @@ class Character(Object):
         self.frame_count = self.info['jump_frames']
         self.curr_frames = self.jump_l_frames
 
+    def dash_r_state(self):
+        if self.state == State.DASH:
+            return
+        self.state = State.DASH
+        self.curr_frame = 0
+        self.frame_count = self.info['dash_frames']
+        self.curr_frames = self.dash_r_frames
+
+    def dash_l_state(self):
+        if self.state == State.DASH:
+            return
+        self.state = State.DASH
+        self.curr_frame = 0
+        self.frame_count = self.info['dash_frames']
+        self.curr_frames = self.dash_l_frames
+
     def damage_state(self):
         if self.state == State.DAMAGE:
             return
@@ -198,6 +215,8 @@ class Player(Character):
         self.attack_l_frames = []
         self.jump_r_frames = []
         self.jump_l_frames = []
+        self.dash_r_frames = []
+        self.dash_l_frames = []
 
         # set up animation arrays
         lx_pos = self.info['idle_lx_starts']
@@ -235,6 +254,18 @@ class Player(Character):
         for frame in range(self.info['jump_frames']):
             self.jump_l_frames.append(self.image_at((lx_pos[frame], ly_pos[frame],
                                                     self.info['size'][0], self.info['size'][1])))
+        rx_pos = self.info['dash_rx_starts']
+        ry_pos = self.info['dash_ry_starts']
+        for frame in range(self.info['dash_frames']):
+            self.dash_r_frames.append(self.image_at((rx_pos[frame], ry_pos[frame],
+                                                     self.info['size'][0], self.info['size'][1])))
+
+        lx_pos = self.info['dash_lx_starts']
+        ly_pos = self.info['dash_ly_starts']
+        for frame in range(self.info['dash_frames']):
+            self.dash_l_frames.append(self.image_at((lx_pos[frame], ly_pos[frame],
+                                                     self.info['size'][0], self.info['size'][1])))
+
         if self.flipped:
             self.idle_l_state()
         else:

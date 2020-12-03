@@ -22,6 +22,11 @@ def check_keydown_events(event, character, knives, settings, screen):
         character.move_right()
     if event.key == pygame.K_SPACE:
         character.jump()
+    if event.key == pygame.K_LSHIFT:
+        if character.flipped:
+            character.dash_l_state()
+        else:
+            character.dash_r_state()
     if event.key == pygame.K_f or event.key == ord('f'):
         if character.flipped:
             character.attack_l_state()
@@ -37,6 +42,11 @@ def check_keyup_events(event, character):
         character.move_left(False)
     elif event.key == pygame.K_RIGHT or event.key == ord('d'):
         character.move_right(False)
+    if event.key == pygame.K_LSHIFT:
+        if character.flipped:
+            character.move_left(False)
+        else:
+            character.move_right(False)
 
 def update_screen(settings, screen, character, bg, skeleton, knives, platforms, enemies):
     # this is where the screen is updated
