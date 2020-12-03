@@ -44,28 +44,30 @@ def check_keyup_events(event, character):
         character.move_right(False)
     if event.key == pygame.K_LSHIFT:
         if character.flipped:
-            character.idle_l_state()
+            character.move_left(False)
         else:
-            character.idle_r_state()
+            character.move_right(False)
 
-def update_screen(settings, screen, character, bg, skeleton, knives, platforms, enemies, floor):
+def update_screen(settings, screen, character, bg, knives, platforms, enemies, floor):
     # this is where the screen is updated
     screen.fill(settings.white)
     screen.blit(bg, (0, 0))
-    skeleton.blitme()
     character.blitme()
     # redraw all knives
     for knife in knives.sprites():
         knife.draw_knife()
+    # redraw all enemies
+    for enemy in enemies.copy():
+        enemy.blitme()
     # draw all ground
-    for ground in floor:
+    for ground in floor.copy():
         screen.blit(ground.image, ground.rect)
     # draw all platforms
     for platform in platforms.sprites():
         screen.blit(platform.image, platform.rect)
     pygame.display.flip()
 
-def update_knives(knives, skeleton):
+def update_knives(knives, enemies):
     # update positions of knives and delete off screen ones
     knives.update()
 
@@ -75,10 +77,12 @@ def update_knives(knives, skeleton):
         if knife.rect.right <= 0 or knife.rect.left >= 1000:
             knives.remove(knife)
         # if it hits an enemy
-        if skeleton.hitbox[1] + skeleton.hitbox[3] > knife.y > skeleton.hitbox[1]:
-            if skeleton.hitbox[0] < knife.x < skeleton.hitbox[0] + skeleton.hitbox[2]:
-                skeleton.hit_knife()
-                knives.remove(knife)
+        for enemy in enemies.copy():
+            if enemy.hitbox[1] + enemy.hitbox[3] > knife.y > enemy.hitbox[1]:
+                if enemy.hitbox[0] < knife.x < enemy.hitbox[0] + enemy.hitbox[1]:
+                    print("hit")
+                    enemy.hit_knife()
+                    knives.remove(knife)
 
 def throw_knife(settings, screen, character, knives, flipped):
     # create a new bullet if there isn't 3 currently on screen
@@ -86,11 +90,15 @@ def throw_knife(settings, screen, character, knives, flipped):
         new_knife = Knife(settings, screen, character, flipped)
         knives.add(new_knife)
 
-def update_enemies(skeleton, character):
-    skeleton.update()
-    if character.hitbox.colliderect(skeleton.hitbox):
-        character.hit()
-    if skeleton.hitbox.colliderect(character.sword_hitbox):
-        skeleton.hit_sword()
+def update_enemies(character, enemies):
+    for enemy in enemies.copy():
+        enemy.update()
+        if character.hitbox.colliderect(enemy.hitbox):
+            character.hit()
+        if enemy.hitbox.colliderect(character.sword_hitbox):
+            enemy.hit_sword()
+        if enemy.health <= 0:
+            enemies.remove(enemy)
+
 
 

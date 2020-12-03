@@ -1,7 +1,9 @@
 import pygame
+import sys
 from pygame.sprite import Sprite
 import settings
 from enum import Enum
+
 import os
 #Guide used to implement jump and platform mechanics
 #https://opensource.com/article/19/12/jumping-python-platformer-game
@@ -134,7 +136,7 @@ class Character(Object):
     def walk_l_state(self):
         if self.state is State.ATTACK or self.state is State.DASH:
             return
-        self.state = State.IDLE
+        self.state = State.WALK
         self.curr_frame = 0
         self.frame_count = self.info['walk_frames']
         self.curr_frames = self.walk_l_frames
@@ -281,15 +283,15 @@ class Player(Character):
         super().blitme()
         # Update hitbox
         self.hitbox = pygame.Rect(self.rect.x + 6, self.rect.y + 1, 34, 46)
-        pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 2)
+        # pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 2)
         # If attacking, create hitbox for sword
         if self.state == State.ATTACK:
             if not self.flipped:
                 self.sword_hitbox = pygame.Rect(self.rect.right - 7, self.rect.top + 4, 24, 32)
-                pygame.draw.rect(self.screen, (255, 0, 0), self.sword_hitbox, 2)
+                # pygame.draw.rect(self.screen, (255, 0, 0), self.sword_hitbox, 2)
             else:
                 self.sword_hitbox = pygame.Rect(self.rect.left - 20, self.rect.top + 4, 24, 32)
-                pygame.draw.rect(self.screen, (255, 0, 0), self.sword_hitbox, 2)
+                # pygame.draw.rect(self.screen, (255, 0, 0), self.sword_hitbox, 2)
         # Create Health Bar
         pygame.draw.rect(self.screen, (255, 0, 0), (10, 20, 50, 10))
         pygame.draw.rect(self.screen, (0, 128, 0), (10, 20, 50 - (50 - self.health), 10))
@@ -301,7 +303,7 @@ class Player(Character):
 
     def gravity(self):
         if self.is_jumping:
-            self.movey += 3.2   # Edit this value to change jump height
+            self.movey += 4   # Edit this value to change jump height
 
     def jump(self):
         if self.is_jumping is False:
@@ -310,10 +312,14 @@ class Player(Character):
 
     def update(self):
 
+        if self.health <= 0:
+            sys.exit()
+
         if self.moving_right:
             self.rect.centerx += self.walking_speed
         elif self.moving_left:
             self.rect.centerx -= self.walking_speed
+
         if self.state is State.DASH:
             if self.flipped:
                 self.rect.centerx -= self.dash_speed
@@ -434,11 +440,14 @@ class Level:
 
         return ground_list
 
-    def bad(lvl, eloc):
+    def bad(self, lvl, screen, settings):
         if lvl == 1:
-            enemy = Enemy(eloc[0], eloc[1], 'enemy.png')
-            enemy_list = pygame.sprite.Group()
-            enemy_list.add(enemy)
+            enemy_list = []
+            # put two skeletons into thing
+            skeleton1 = Skeleton(screen, settings, settings.screen_width / 3, settings.screen_height - 140)
+            enemy_list.append(skeleton1)
+            skeleton2 = Skeleton(screen, settings, (settings.screen_width / 3) - 40, settings.screen_height - 140)
+            enemy_list.append(skeleton2)
         if lvl == 2:
             print("Level " + str(lvl))
 
@@ -469,9 +478,62 @@ class Level:
 
 class Skeleton(Character):
 
-    def __init__(self, screen, settings):
+    def __init__(self, screen, settings, x, y):
         super().__init__(screen, settings.skeleton_sprite)
 
+        # Need to update frame count and current frame when switching states
+        self.rect = self.idle_r_frames[0].get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+        self.frame_count = self.info['idle_frames']
+        self.curr_image = self.idle_r_frames[self.curr_frame]
+        self.state = State.IDLE
+        self.hitbox = pygame.Rect(self.rect.x + 7, self.rect.y + 1, 34, 42)
+
+        self.health = 20
+        self.visible = True
+
+    def update(self):
+        if self.health <= 0:
+            self.visible = False
+        self.inc_frame()
+        # Update per state
+        self.curr_image = self.idle_r_frames[self.curr_frame]
+
+    def blitme(self):
+        if self.visible:
+            super().blitme()
+            # Update hitbox
+            self.hitbox = pygame.Rect(self.rect.x + 7, self.rect.y + 1, 34, 42)
+            # un comment line below to debug hitbox
+            # pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 2)
+            # health bar
+            pygame.draw.rect(self.screen, (255, 0, 0), (self.hitbox[0] - 10, self.hitbox[1] - 20, 40, 5))
+            pygame.draw.rect(self.screen, (0, 128, 0), (self.hitbox[0] - 10, self.hitbox[1] - 20,
+                                                        40 - (2 * (20 - self.health)), 5))
+
+    def hit_knife(self):
+        self.health -= 5
+
+    def hit_sword(self):
+        self.health -= 10
+
+
+gloc = []
+tx = 64
+ty = 64
+i = 0
+while i <= (worldx / tx) + tx:
+    gloc.append(i * tx)
+    i = i + 1
+
+ground_list = Level.ground(1, gloc, tx, ty)
+plat_list = Level.platform(1, tx, ty)
+
+class HauntedAxe(Character):
+    def __init__(self, screen, settings):
+        super().__init__(screen, settings.haunted_axe)
         # Need to update frame count and current frame when switching states
         self.rect = self.idle_r_frames[0].get_rect()
         self.rect.centerx = self.info['start_pos'][0]
@@ -498,66 +560,17 @@ class Skeleton(Character):
             # Update hitbox
             self.hitbox = pygame.Rect(self.rect.x + 7, self.rect.y + 1, 34, 42)
             # un comment line below to debug hitbox
-            pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 2)
+            # pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 2)
             # health bar
-            pygame.draw.rect(self.screen, (255, 0, 0), (self.hitbox[0] - 10, self.hitbox[1] - 20, 50, 5))
+            pygame.draw.rect(self.screen, (255, 0, 0), (self.hitbox[0] - 10, self.hitbox[1] - 20, 40, 5))
             pygame.draw.rect(self.screen, (0, 128, 0), (self.hitbox[0] - 10, self.hitbox[1] - 20,
-                                                        50 - (5 * (10 - self.health)), 5))
+                                                        40 - (4 * (10 - self.health)), 5))
 
     def hit_knife(self):
         self.health -= 5
 
     def hit_sword(self):
         self.health -= 10
-
-
-class Weapon(Object):
-
-    def __init__(self, screen, weapon_info):
-        super().__init__(screen, weapon_info)
-
-        self.active = False
-
-        self.frames = []
-        self.frame_count = weapon_info['frames']
-        x_pos = self.info['x_starts']
-        y_pos = self.info['y_starts']
-        for frame in range(self.info['frames']):
-            self.frames.append(self.image_at((x_pos[frame], y_pos[frame],
-                                              self.info['size'][0], self.info['size'][1])))
-        self.curr_image = self.frames[self.curr_frame]
-
-    def activate(self, flag=False):
-        self.active = flag
-        self.curr_frame = 0
-
-    def update(self, rect):
-        self.rect = rect
-        if self.active:
-            self.inc_frame()
-            self.curr_image = self.frames[self.curr_frame]
-
-eloc = []
-eloc = [300, 0]
-enemy_list = Level.bad(1, eloc)
-
-gloc = []
-tx = 64
-ty = 64
-i = 0
-while i <= (worldx / tx) + tx:
-    gloc.append(i * tx)
-    i = i + 1
-
-ground_list = Level.ground(1, gloc, tx, ty)
-plat_list = Level.platform(1, tx, ty)
-
-
-
-
-class HauntedAxe(Weapon):
-    def __init__(self, screen, settings):
-        super().__init__(screen, settings.haunted_axe)
 
 class Knife(Sprite):
     # class to manage player's throwing knives

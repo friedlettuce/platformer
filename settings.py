@@ -58,18 +58,19 @@ class Settings:
         self.skeleton_sprite = {
             'location': "images/basic_enemies.png",
             'size': (48, 48),
-            'start_pos': (self.screen_width / 3, self.screen_height - 56),
-            'idle_frames': 3,
-            'idle_ry_starts': (0, 0, 0),
-            'idle_rx_starts': (0, 49, 98)
+            'start_pos': (self.screen_width / 3, self.screen_height - 60),
+            'idle_frames': 6,
+            'idle_ry_starts': (0, 0, 0, 0, 0, 0),
+            'idle_rx_starts': (0, 0, 49, 49, 98, 98)
         }
 
         self.haunted_axe = {
             'location': "images/basic_enemies.png",
             'size': (48, 48),
-            'frames': 4,
-            'y_starts': (49, 49, 49, 49),
-            'x_starts': (0, 49, 98, 147)
+            'start_pos': ((self.screen_width / 3) * 2, self.screen_height - 60),
+            'idle_frames': 4,
+            'idle_ry_starts': (49, 49, 49, 49),
+            'idle_rx_starts': (0, 49, 98, 147)
         }
 
         self.platform = {

@@ -1,4 +1,4 @@
-# import pygame_menu
+import pygame_menu
 import pygame
 from pygame.sprite import Group
 from settings import Settings
@@ -18,16 +18,15 @@ def tower_master():
     pygame.display.set_caption(settings.title)
     bg = pygame.image.load(settings.background_img)
 
-    level = None
+    level = Level()
 
     character = Player(screen, settings)
-    skeleton = Skeleton(screen, settings)
 
     # group to store throwing knives
     knives = Group()
     platforms = objects.plat_list
     floor = objects.ground_list
-    enemies = Group()
+    enemies = level.bad(1, screen, settings)
 
     # Main Game Loop
     while True:
@@ -37,11 +36,11 @@ def tower_master():
 
         character.update()
         character.gravity()
-        gf.update_enemies(skeleton, character)
+        gf.update_enemies(character, enemies)
 
-        gf.update_knives(knives, skeleton)
+        gf.update_knives(knives, enemies)
 
-        gf.update_screen(settings, screen, character, bg, skeleton, knives, platforms, enemies, floor)
+        gf.update_screen(settings, screen, character, bg, knives, platforms, enemies, floor)
 
 pygame.init()
 surface = pygame.display.set_mode((600, 400))
@@ -54,7 +53,6 @@ def start_the_game():
     tower_master()
     pass
 
-'''
 menu = pygame_menu.Menu(300, 400, 'Tower Master v0.0.1',
                        theme=pygame_menu.themes.THEME_BLUE)
 
@@ -65,5 +63,5 @@ menu.add_button('Exit Game', pygame_menu.events.EXIT)
 surface = pygame.display.set_mode((600, 400))
 
 menu.mainloop(surface)
-'''
+
 start_the_game()
