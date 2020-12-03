@@ -80,8 +80,6 @@ def update_knives(knives, enemies):
         for enemy in enemies.copy():
             if enemy.hitbox[1] + enemy.hitbox[3] > knife.y > enemy.hitbox[1]:
                 if enemy.hitbox[0] < knife.x < enemy.hitbox[0] + enemy.hitbox[2]:
-                    print(enemy.hitbox)
-                    print(knife.y, knife.x)
                     enemy.hit_knife()
                     knives.remove(knife)
 
