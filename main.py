@@ -1,4 +1,4 @@
-import pygame_menu
+# import pygame_menu
 import pygame
 from pygame.sprite import Group
 from settings import Settings
@@ -54,6 +54,7 @@ def start_the_game():
     tower_master()
     pass
 
+'''
 menu = pygame_menu.Menu(300, 400, 'Tower Master v0.0.1',
                        theme=pygame_menu.themes.THEME_BLUE)
 
@@ -64,5 +65,5 @@ menu.add_button('Exit Game', pygame_menu.events.EXIT)
 surface = pygame.display.set_mode((600, 400))
 
 menu.mainloop(surface)
-
+'''
 start_the_game()
