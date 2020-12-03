@@ -397,35 +397,7 @@ class Player(Character):
         self.rect.y += self.movey
 
 
-class Enemy(pygame.sprite.Sprite):
-    """
-    Spawn an enemy
-    """
 
-    def __init__(self, x, y, img):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join('images', 'basic_enemies' + '.png'))
-        self.image.set_colorkey(ALPHA)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.counter = 0
-
-    def move(self):
-        """
-        enemy movement
-        """
-        distance = 80
-        speed = 8
-
-        if self.counter >= 0 and self.counter <= distance:
-            self.rect.x += speed
-        elif self.counter >= distance and self.counter <= distance * 2:
-            self.rect.x -= speed
-        else:
-            self.counter = 0
-
-        self.counter += 1
 class Level:
     def ground(lvl, gloc, tx, ty):
         ground_list = pygame.sprite.Group()
@@ -445,10 +417,13 @@ class Level:
         if lvl == 1:
             enemy_list = []
             # put two skeletons into thing
-            skeleton1 = Skeleton(screen, settings, settings.screen_width / 3, settings.screen_height - 140)
+            skeleton1 = Skeleton(screen, settings, settings.screen_width / 3, settings.screen_height - 115)
             enemy_list.append(skeleton1)
-            skeleton2 = Skeleton(screen, settings, (settings.screen_width / 3) - 40, settings.screen_height - 140)
+            skeleton2 = Skeleton(screen, settings, (settings.screen_width / 3) - 40, settings.screen_height - 115)
             enemy_list.append(skeleton2)
+            # Now put a haunted axe in as well
+            evilAxe = HauntedAxe(screen, settings, (settings.screen_width / 3) * 2, settings.screen_height - 70)
+            enemy_list.append(evilAxe)
         if lvl == 2:
             print("Level " + str(lvl))
 
@@ -469,7 +444,6 @@ class Level:
                     plat = Platform((ploc[i][0] + (j * tx)), ploc[i][1], tx, ty)
                     plat_list.add(plat)
                     j = j + 1
-                print('run' + str(i) + str(ploc[i]))
                 i = i + 1
 
         if lvl == 2:
@@ -494,6 +468,7 @@ class Skeleton(Character):
 
         self.health = 20
         self.visible = True
+        self.counter = 0
 
     def update(self):
         if self.health <= 0:
@@ -501,6 +476,15 @@ class Skeleton(Character):
         self.inc_frame()
         # Update per state
         self.curr_image = self.idle_r_frames[self.curr_frame]
+        # make skeleton move left and right
+        if 0 <= self.counter < 6:
+            self.rect.centerx += 4
+            self.counter += 1
+        elif 6 <= self.counter < 11:
+            self.rect.centerx -= 4
+            self.counter += 1
+        elif self.counter >= 11:
+            self.counter = 0
 
     def blitme(self):
         if self.visible:
@@ -533,12 +517,12 @@ ground_list = Level.ground(1, gloc, tx, ty)
 plat_list = Level.platform(1, tx, ty)
 
 class HauntedAxe(Character):
-    def __init__(self, screen, settings):
+    def __init__(self, screen, settings, x, y):
         super().__init__(screen, settings.haunted_axe)
         # Need to update frame count and current frame when switching states
         self.rect = self.idle_r_frames[0].get_rect()
-        self.rect.centerx = self.info['start_pos'][0]
-        self.rect.bottom = self.info['start_pos'][1]
+        self.rect.centerx = x
+        self.rect.bottom = y
 
         self.frame_count = self.info['idle_frames']
         self.curr_image = self.idle_r_frames[self.curr_frame]
@@ -559,7 +543,7 @@ class HauntedAxe(Character):
         if self.visible:
             super().blitme()
             # Update hitbox
-            self.hitbox = pygame.Rect(self.rect.x + 7, self.rect.y + 1, 34, 42)
+            self.hitbox = pygame.Rect(self.rect.x + 10, self.rect.y + 9, 20, 20)
             # un comment line below to debug hitbox
             # pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 2)
             # health bar
@@ -594,6 +578,7 @@ class Knife(Sprite):
 
         self.color = settings.knife_color
         self.speed = settings.knife_speed
+
     def update(self):
         # Move knife horizontally
         # update decimal position
@@ -608,4 +593,12 @@ class Knife(Sprite):
         # draw knife on screen
         pygame.draw.rect(self.screen, self.color, self.rect)
 
-
+class Exit_Ladder(Sprite):
+    # level ending ladder
+    def __init__(self, xloc, yloc):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join('images/ladder.png'))
+        self.image.set_colorkey(ALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.y = yloc
+        self.rect.x = xloc

@@ -3,7 +3,7 @@ import pygame
 from pygame.sprite import Group
 from settings import Settings
 import game_functions as gf
-from objects import Player, Skeleton, Level, Platform
+from objects import Player, Skeleton, Level, Platform, Exit_Ladder
 import objects
 
 
@@ -21,6 +21,7 @@ def tower_master():
     level = Level()
 
     character = Player(screen, settings)
+    exit = Exit_Ladder(settings.screen_width / 2, (settings.screen_height / 2) + 56)
 
     # group to store throwing knives
     knives = Group()
@@ -40,7 +41,8 @@ def tower_master():
 
         gf.update_knives(knives, enemies)
 
-        gf.update_screen(settings, screen, character, bg, knives, platforms, enemies, floor)
+        gf.update_screen(settings, screen, character, bg, knives, platforms, enemies, floor, exit)
+        gf.check_win(character, exit)
 
 pygame.init()
 surface = pygame.display.set_mode((600, 400))
@@ -52,6 +54,7 @@ def set_difficulty(value, difficulty):
 def start_the_game():
     tower_master()
     pass
+
 
 menu = pygame_menu.Menu(300, 400, 'Tower Master v0.0.1',
                        theme=pygame_menu.themes.THEME_BLUE)

@@ -48,10 +48,18 @@ def check_keyup_events(event, character):
         else:
             character.move_right(False)
 
-def update_screen(settings, screen, character, bg, knives, platforms, enemies, floor):
+def update_screen(settings, screen, character, bg, knives, platforms, enemies, floor, exit):
     # this is where the screen is updated
     screen.fill(settings.white)
     screen.blit(bg, (0, 0))
+    # draw all ground
+    for ground in floor.copy():
+        screen.blit(ground.image, ground.rect)
+    # draw all platforms
+    for platform in platforms.sprites():
+        screen.blit(platform.image, platform.rect)
+    # draw the exit ladder
+    screen.blit(exit.image, exit.rect)
     character.blitme()
     # redraw all knives
     for knife in knives.sprites():
@@ -59,12 +67,6 @@ def update_screen(settings, screen, character, bg, knives, platforms, enemies, f
     # redraw all enemies
     for enemy in enemies.copy():
         enemy.blitme()
-    # draw all ground
-    for ground in floor.copy():
-        screen.blit(ground.image, ground.rect)
-    # draw all platforms
-    for platform in platforms.sprites():
-        screen.blit(platform.image, platform.rect)
     pygame.display.flip()
 
 def update_knives(knives, enemies):
@@ -99,5 +101,8 @@ def update_enemies(character, enemies):
         if enemy.health <= 0:
             enemies.remove(enemy)
 
-
-
+def check_win(character, exit):
+    if character.hitbox[1] + character.hitbox[3] > exit.rect.centery > character.hitbox[1]:
+        if character.hitbox[0] < exit.rect.centerx < character.hitbox[0] + character.hitbox[2]:
+            print("You beat the level!")
+            sys.exit()

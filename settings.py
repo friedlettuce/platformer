@@ -49,7 +49,7 @@ class Settings:
         }
 
         # Throwing Knife Settings
-        self.knife_speed = 25
+        self.knife_speed = 20
         self.knife_width = 6
         self.knife_height = 2
         self.knife_color = 255, 255, 255
