@@ -3,18 +3,17 @@ import sys
 import pygame
 import objects
 from objects import Knife
-
-def check_events(settings, screen, character, knives, platforms, enemies):
+def check_events(settings, screen, character, knives, sound):
     # check for keypresses and other events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, character, knives, settings, screen)
+            check_keydown_events(event, character, knives, settings, screen, sound)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, character)
 
-def check_keydown_events(event, character, knives, settings, screen):
+def check_keydown_events(event, character, knives, settings, screen, sound):
     # this function deals with any keydown event
     if event.key == pygame.K_LEFT or event.key == ord('a'):
         character.move_left()
@@ -33,7 +32,7 @@ def check_keydown_events(event, character, knives, settings, screen):
         else:
             character.attack_r_state()
     if event.key == pygame.K_g:
-        throw_knife(settings, screen, character, knives, character.flipped)
+        throw_knife(settings, screen, character, knives, character.flipped, sound)
 
 
 def check_keyup_events(event, character):
@@ -85,17 +84,19 @@ def update_knives(knives, enemies):
                     enemy.hit_knife()
                     knives.remove(knife)
 
-def throw_knife(settings, screen, character, knives, flipped):
+def throw_knife(settings, screen, character, knives, flipped, sound):
     # create a new bullet if there isn't 3 currently on screen
     if len(knives) < settings.knives_allowed:
         new_knife = Knife(settings, screen, character, flipped)
         knives.add(new_knife)
+        sound.play()
 
-def update_enemies(character, enemies):
+def update_enemies(character, enemies, sound):
     for enemy in enemies.copy():
         enemy.update()
         if character.hitbox.colliderect(enemy.hitbox):
             character.hit()
+            sound.play()
         if enemy.hitbox.colliderect(character.sword_hitbox):
             enemy.hit_sword()
         if enemy.health <= 0:

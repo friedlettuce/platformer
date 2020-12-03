@@ -7,13 +7,12 @@ from objects import Player, Skeleton, Level, Platform, Exit_Ladder
 import objects
 
 
-def tower_master():
 
-    pygame.init()
+def tower_master():
 
     settings = Settings()
     clock = pygame.time.Clock()
-
+    pygame.mixer.music.play(-1)
     screen = pygame.display.set_mode((settings.screen_width, settings.screen_height))
     pygame.display.set_caption(settings.title)
     bg = pygame.image.load(settings.background_img)
@@ -32,12 +31,11 @@ def tower_master():
     # Main Game Loop
     while True:
         clock.tick(settings.fps)
-
-        gf.check_events(settings, screen, character, knives, platforms, enemies)
+        gf.check_events(settings, screen, character, knives, knifeSound)
 
         character.update()
         character.gravity()
-        gf.update_enemies(character, enemies)
+        gf.update_enemies(character, enemies, hitSound)
 
         gf.update_knives(knives, enemies)
 
@@ -45,6 +43,11 @@ def tower_master():
         gf.check_win(character, exit)
 
 pygame.init()
+
+knifeSound = pygame.mixer.Sound('sounds/throw.wav')
+hitSound = pygame.mixer.Sound('sounds/ouch.wav')
+
+music = pygame.mixer.music.load('sounds/levelMusic.wav')
 surface = pygame.display.set_mode((600, 400))
 
 def set_difficulty(value, difficulty):
